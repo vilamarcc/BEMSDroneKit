@@ -6,32 +6,16 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 
-mpl.rcParams['legend.fontsize'] = 10
-
-
-# Helix Single Squared
-fig = plt.figure()
-turnsperlevel = 10
-ax = fig.gca(projection='3d')
-
-# BUILDING PERIMETER WALLS #
-hmax = 20
-yy, zz = np.meshgrid(np.linspace(-2.5,2.5,2), np.linspace(0,hmax,2))
-xx = 2.5
-surf = ax.plot_surface(xx, yy, zz)
-surf_2 = ax.plot_surface(-xx, yy, zz)
-surf_3 = ax.plot_surface(yy, xx, zz)
-surf_3 = ax.plot_surface(yy, -xx, zz)
-
-# HELIX CALCULATION
-
-pitch = 2
-n = (hmax / pitch)
-theta = np.linspace(0, 2 * np.pi * n , 300)
-r = np.sqrt(2.5**2 + 2.5**2) + 0.5
-x = r * np.sin(theta)
-y = r * np.cos(theta)
-z =  theta 
-ax.plot(x, y, z)
-
-plt.show()
+def getHelix(hmax, sep, wall1, wall2, bufferD):
+    a = max(wall1,wall2) * 2
+    b = min(wall2,wall1) * 2
+    C = np.sqrt(a**2 - b**2)
+    e = C / a
+    n = (hmax / sep)
+    c = hmax / (2 * np.pi * n)
+    theta = np.linspace(0, np.pi * n * 2 , 300)
+    z = c * theta
+    r = (b / np.sqrt(1 - (e**2)*(np.cos(theta)))) + bufferD 
+    x = r * np.cos(theta)
+    y = r * np.sin(theta)
+    return x,y,z
