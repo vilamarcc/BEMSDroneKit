@@ -54,7 +54,7 @@ def getIntersectionBetweenCoordinates(lat1,lon1,brng1,lat2,lon2,brng2): #bearing
     else:
         θ12 = 2*np.pi - θa
         θ21 = θb  
-        
+
     α1 = θ13 - θ12 #angle 2-1-3
     α2 = θ21 - θ23 #angle 1-2-3
 
@@ -70,3 +70,14 @@ def getIntersectionBetweenCoordinates(lat1,lon1,brng1,lat2,lon2,brng2): #bearing
     Δλ13 = math.atan2(math.sin(θ13)*math.sin(δ13)*math.cos(φ1), math.cos(δ13) - math.sin(φ1)*math.sin(φ3))
     λ3 = λ1 + Δλ13
     return math.degrees(φ3), math.degrees(λ3) #[lat,lon] in degrees
+
+def fromXYtoLatLong(X,Y,lat1,lon1):
+    R = 6371 * 1000
+    d = np.sqrt((X * X) + (Y * Y))
+    brng = math.atan2(Y, - X) - (np.pi / 2)
+    φ1 = lat1 * (np.pi / 180)
+    λ1 = lon1 * (np.pi / 180)
+    φ2 = math.asin(math.sin(φ1) * math.cos(d / R) + math.cos(φ1) * math.sin(d / R) * math.cos(brng))
+    λ2 = λ1 + math.atan2(math.sin(brng) * math.sin(d / R) * math.cos(φ1), math.cos(d / R) - math.sin(φ1) * math.sin(φ2))
+
+    return math.degrees(φ2),math.degrees(λ2)
