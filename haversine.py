@@ -28,10 +28,11 @@ def getBearingBetweenCoordinates(lat1, lon1, lat2, lon2):
     lat2 = math.radians(lat2)
     lon1 = math.radians(lon1)
     lon2 = math.radians(lon2)
-    y = math.sin(lon2-lon1) * math.cos(lat2)
-    x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1)*math.cos(lon2)*math.cos(lon2-lon1)
-    brng = math.atan2(y, x)
-    return brng #Bearing in radians
+    x = math.sin(lon2-lon1) * math.cos(lat2)
+    y = math.cos(lat1) * math.sin(lat2) - math.sin(lat1)*math.cos(lon2)*math.cos(lon2-lon1)
+    brng = math.atan2(x, y)
+    brng = math.atan2(lon2 - lon1,lat2 - lat1)
+    return round(brng,3) #Bearing in radians
 
 def getIntersectionBetweenCoordinates(lat1,lon1,brng1,lat2,lon2,brng2): #bearings in radians coords in degrees
     φ1 = math.radians(lat1)
