@@ -1,5 +1,5 @@
 import numpy as np
-from haversine import getDistanceBetweenCoordinates, getBearingBetweenCoordinates, fromXYtoLatLong
+from haversine import getDistanceBetweenCoordinates, getBearingBetweenCoordinates, fromXYtoLatLong, getLocationAtBearing
 
 
 def getHelix(hmax, sep, bufferD, cc1, cc2, cc3, cc4): ##ccn = corners of perimeter [lat,lon]
@@ -13,16 +13,17 @@ def getHelix(hmax, sep, bufferD, cc1, cc2, cc3, cc4): ##ccn = corners of perimet
     theta = np.linspace(0, np.pi * n * 2 , 300)
     z = c * theta #altitude in m
     alpha = np.arctan2(b,a)
-    brng = (((getBearingBetweenCoordinates(cc2[0],cc2[1],cc1[0],cc1[1])) + getBearingBetweenCoordinates(cc3[0],cc3[1],cc4[0],cc4[1])) / 2) - np.pi
     rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))
     rmax = np.sqrt(a**2 + b**2)
     rextra = (rmax - rr) + bufferD
     if(max(wall1, wall2) == wall1):
+        brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) - np.pi
         x = (a + rextra) * np.cos(theta) 
         y = (b + rextra) * np.sin(theta) 
         yprime = x*np.cos(brng) - y*np.sin(brng)
         xprime = x*np.sin(brng) + y*np.cos(brng)
     else:
+        brng = getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) - np.pi
         y = (a + rextra) * np.cos(theta) 
         x = (b + rextra) * np.sin(theta)
         xprime = x*np.cos(brng) - y*np.sin(brng)
@@ -46,4 +47,13 @@ def getHelixinCoords(x,y,z,C):
         i = i + 1
 
     return x,y,z
-        
+
+def getFacade(hmax, sep, bufferD, cc1, cc2):
+    brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + np.pi / 2
+    [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD, brng)
+    [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD, brng)
+    n = round(hmax/sep)
+    x = np.tile([pLat1,pLat2],n)
+    y = np.tile([pLon1,pLon2],n)
+    z = np.linspace(0,hmax,2*n)
+    return x,y,z
