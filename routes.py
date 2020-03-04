@@ -1,17 +1,38 @@
 import numpy as np
 from haversine import getDistanceBetweenCoordinates, getBearingBetweenCoordinates, fromXYtoLatLong, getLocationAtBearing
+import math
 
+class perimeter:
+    def __init__ (self, cc1, cc2, cc3, cc4, hma, hmi): # ccn = corners of perimeter [lat,lon]
+        self.c1 = cc1
+        self.c2 = cc2
+        self.c3 = cc3
+        self.c4 = cc4
+        self.hmax = hma
+        self.C = self.getCenter()
+    def getCenter(self):
+        cLat = round((self.c1[0] + self.c2[0] + self.c3[0] + self.c4[0]) / 4 , 7)
+        cLon = round((self.c1[1] + self.c2[1] + self.c3[1] + self.c4[1]) / 4 , 7)
+        C = [cLat,cLon]
+        return C
+    def __lt__(self, other):
+        return self.hmax < other.hmax
 
-def getHelix(hmax, sep, bufferD, cc1, cc2, cc3, cc4): ##ccn = corners of perimeter [lat,lon]
+def getHelix(sep, bufferD, perimeter, hmin): 
 
+    cc1 = perimeter.c1 
+    cc2 = perimeter.c2
+    cc3 = perimeter.c3
+    cc4 = perimeter.c4
+    hmax = perimeter.hmax
     wall1 = max(getDistanceBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]), getDistanceBetweenCoordinates(cc3[0],cc3[1],cc4[0],cc4[1]))
     wall2 = max(getDistanceBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]), getDistanceBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1]))
     a = max(wall1,wall2) / 2
     b = min(wall2,wall1) / 2
     n = (hmax / sep)
-    c = hmax / (2 * np.pi * n) 
+    c = (hmax - hmin) / (2 * np.pi * n)
     theta = np.linspace(0, np.pi * n * 2 , 300)
-    z = c * theta #altitude in m
+    z = (c * theta) + hmin #altitude in m 
     alpha = np.arctan2(b,a)
     rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))
     rmax = np.sqrt(a**2 + b**2)
@@ -29,16 +50,28 @@ def getHelix(hmax, sep, bufferD, cc1, cc2, cc3, cc4): ##ccn = corners of perimet
         xprime = x*np.cos(brng) - y*np.sin(brng)
         yprime = x*np.sin(brng) + y*np.cos(brng)
 
-    return xprime,yprime,z
+    return xprime,yprime,z,theta
 
-def getCenterofPerimeter(cc1, cc2, cc3, cc4): 
-    cLat = round((cc1[0] + cc2[0] + cc3[0] + cc4[0]) / 4 , 7)
-    cLon = round((cc1[1] + cc2[1] + cc3[1] + cc4[1]) / 4 , 7)
-    C = [cLat,cLon]
+def getMultiHelix(hmin, sep, bufferD, ps): #ps = [Vector with the perimeters class]
+    ps.sort()
+    ps = ps[::-1]
+    xT = yT = zT = tT = []
+    i = 0
+    while (i < len(ps)):
+        if (i < len(ps) - 1):
+            hsegment = ps[i].hmax - ps[i + 1].hmax
+        else:
+            hsegment = ps[i].hmax
+        
+        xn,yn,zn,thetan = getHelix(sep,bufferD,ps[i],hsegment)
+        xT = [xT,xn]
+        yT = [yT,yn]
+        zT = [zT,zn]
+        tT = [tT,thetan]
+        i = i + 1
+    return xT,yT,zT,thetan
 
-    return C
-
-def getHelixinCoords(x,y,z,C):
+def getHelixinCoords(x,y,z,C): #C = Center of perimeter
     i = 0
     while i < len(x):
         [Lat,Lon] = fromXYtoLatLong(x[i],y[i],C[0],C[1])
@@ -53,7 +86,14 @@ def getFacade(hmax, sep, bufferD, cc1, cc2):
     [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD, brng)
     [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD, brng)
     n = round(hmax/sep)
-    x = np.tile([pLat1,pLat2],n)
-    y = np.tile([pLon1,pLon2],n)
-    z = np.linspace(0,hmax,2*n)
+    x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
+    y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
+    z = np.linspace(0,hmax,len(x))
+    i = 0
+    h = 0
+    while i < len(x):
+        z[i] = hmax - sep*h
+        z[i + 1] = hmax - sep*h
+        i = i + 2
+        h = h + 1
     return x,y,z
