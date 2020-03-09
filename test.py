@@ -11,14 +11,14 @@ from missioncalculation import *
 mpl.rcParams['legend.fontsize'] = 10
 
 
-# Helix Single Squared
+# Helix Single Squared & Single Facade
 fig = plt.figure()
 
 #Square
-#cc1 = [41.275321, 1.9843143]
-#cc2 = [41.27507910, 1.98441620]
-#cc3 = [41.27515570 ,1.98475960]
-#cc4 = [41.27540170, 1.98464420]
+cc11 = [41.275321, 1.9843143]
+cc22 = [41.27507910, 1.98441620]
+cc33 = [41.27515570 ,1.98475960]
+cc44 = [41.27540170, 1.98464420]
 
 #Rectangle
 cc1 = [41.27545100, 1.98420030]
@@ -30,6 +30,7 @@ ax = fig.gca(projection='3d')
 
 # BUILDING WALLS #
 hmax = 15
+hmin = 2
 ax.scatter(cc1[0],cc1[1],hmax)
 ax.scatter(cc2[0],cc2[1],hmax)
 ax.scatter(cc3[0],cc3[1],hmax)
@@ -53,16 +54,18 @@ ax.plot(basex,basey,hmax)
 ax.plot(basex,basey,0)
 
 
-
-sep = 3
-bufferD = 2
-x,y,z = getHelix(hmax, sep, bufferD,cc1, cc2, cc3, cc4)
-cLat,cLon = getCenterofPerimeter(cc1, cc2, cc3, cc4)
-C = [cLat,cLon]
+p1 = perimeter(cc1,cc2,cc3,cc4,hmax,hmin)
+#p2 = perimeter(cc11,cc22,cc33,cc44,hmax,10)
+#ps = [p1,p2]
+sep = 5
+bufferD = 5
+n = hmax/sep
+x,y,z,theta = getHelix(sep,bufferD,p1,hmin)
+C = p1.C
 x,y,z = getHelixinCoords(x,y,z,C)
-#ax.plot(x, y, z)
-#writeSimpleHelixMission(hmax,sep,n,8,bufferD,cc1,cc2,cc3,cc4)
-x,y,z = getFacade(hmax,sep,bufferD,cc2,cc3)
+
+writeSimpleHelixMission(0,sep,16,bufferD,p1,"Mission1")
+#x,y,z = getFacade(hmax,sep,bufferD,cc3,cc4)
 ax.plot(x, y, z)
 
 def set_axes_equal(ax):
