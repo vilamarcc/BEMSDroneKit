@@ -18,9 +18,9 @@ def getLocationAtBearing(lat1, lon1, distance, angle):
     lat1 = math.radians(lat1) # Current lat point converted to radians
     lon1 = math.radians(lon1) # Current long point converted to radians
     lat2 = math.degrees(math.asin(math.sin(lat1)*math.cos(distance/R) + math.cos(lat1)*math.sin(distance/R)*math.cos(angle)))
-    lat2 = round(lat2, 8)
+    lat2 = round(lat2, 7)
     lon2 = math.degrees(lon1 + math.atan2(math.sin(angle)*math.sin(distance/R)*math.cos(lat1), math.cos(distance/R) - math.sin(lat1)*math.sin(lat2)))
-    lon2 = round(lon2, 8)
+    lon2 = round(lon2, 7)
     return lat2, lon2
 
 def getBearingBetweenCoordinates(lat1, lon1, lat2, lon2):
@@ -73,9 +73,9 @@ def getIntersectionBetweenCoordinates(lat1,lon1,brng1,lat2,lon2,brng2): #bearing
     return math.degrees(φ3), math.degrees(λ3) #[lat,lon] in degrees
 
 def fromXYtoLatLong(X,Y,lat1,lon1):
-    R = 6371 * 1000
+    R = 6378 * 1000
     d = np.sqrt((X * X) + (Y * Y))
-    brng = math.atan2(Y, - X) - (np.pi / 2)
+    brng = math.atan2(Y,  -X) - (np.pi / 2)
     φ1 = lat1 * (np.pi / 180)
     λ1 = lon1 * (np.pi / 180)
     φ2 = math.asin(math.sin(φ1) * math.cos(d / R) + math.cos(φ1) * math.sin(d / R) * math.cos(brng))
