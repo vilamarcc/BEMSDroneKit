@@ -26,13 +26,14 @@ class wall:
         self.hmax = hma
         self.hmin = hmi
 
-def getHelix(sep, bufferD, perimeter, hmin): 
+def getHelix(sep, bufferD, perimeter): 
 
     cc1 = perimeter.c1 
     cc2 = perimeter.c2
     cc3 = perimeter.c3
     cc4 = perimeter.c4
     hmax = perimeter.hmax
+    hmin = perimeter.hmin
     wall1 = max(getDistanceBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]), getDistanceBetweenCoordinates(cc3[0],cc3[1],cc4[0],cc4[1]))
     wall2 = max(getDistanceBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]), getDistanceBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1]))
     a = max(wall1,wall2) / 2
@@ -60,7 +61,7 @@ def getHelix(sep, bufferD, perimeter, hmin):
 
     return xprime,yprime,z,theta
 
-def getMultiHelix(hmin, sep, bufferD, ps): #ps = [Vector with the perimeters class]
+def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters class] #bufferH = security distance between helixes
     ps.sort()
     xT = []
     yT = []
@@ -69,11 +70,15 @@ def getMultiHelix(hmin, sep, bufferD, ps): #ps = [Vector with the perimeters cla
     i = 1
     Center = ps[0].C
     #We calculate the first helix of the lowest perimeter
-    xp1,yp1,zp1,tp1 = getHelix(sep,bufferD,ps[0],hmin)
+    xp1,yp1,zp1,tp1 = getHelix(sep,bufferD,ps[0])
     xT.extend(xp1)
     yT.extend(yp1)
     zT.extend(zp1)
     tT.extend(tp1)
+    xT.append(xT[-1])
+    yT.append(yT[-1])
+    zT.append(zT[-1] + bufferH)
+    tT.append(tT[-1])
     while(i < len(ps)):
         cc1 = ps[i].c1 
         cc2 = ps[i].c2
@@ -81,6 +86,20 @@ def getMultiHelix(hmin, sep, bufferD, ps): #ps = [Vector with the perimeters cla
         cc4 = ps[i].c4
         dc = getDistanceBetweenCoordinates(Center[0],Center[1],ps[i].C[0],ps[i].C[1])
         brngC = np.pi - getBearingBetweenCoordinates(Center[0],Center[1],ps[i].C[0],ps[i].C[1])
+        orix = 0
+        oriy = 0
+        if((brngC*180) / np.pi > 180 ):
+            orix = -1
+            if((brngC*180) / np.pi > 90 ):
+                oriy = 1
+            else:
+                oriy = -1
+        else:
+            orix = 1
+            if((brngC*180) / np.pi > 270 ):
+                oriy = -1
+            else:
+                oriy = 1
         ax = np.sqrt((dc**2)/((np.tan(brngC))+ 1))
         bx = ax * np.tan(brngC)
         hmax = ps[i].hmax
@@ -90,25 +109,27 @@ def getMultiHelix(hmin, sep, bufferD, ps): #ps = [Vector with the perimeters cla
         a = max(wall1,wall2) / 2
         b = min(wall2,wall1) / 2
         n = ((hmax - ps[i - 1].hmax) / sep)
-        c = (hmax - hmin) / (2 * np.pi * n)
-        theta = np.linspace(tT[-1], tT[-1] + np.pi * n * 2 , 200)
-        z = (c * theta) #altitude in m 
+        c = (hmax - (hmin) ) / (2 * np.pi * n)
         alpha = np.arctan2(b,a)
         rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))
         rmax = np.sqrt(a**2 + b**2)
         rextra = (rmax - rr) + bufferD
         if(max(wall1, wall2) == wall1):
             brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) - np.pi
+            theta = np.linspace(brng, brng + np.pi * n * 2 , 200)
+            z = (c * theta) + hmin + bufferD #altitude in m 
             x = (a + rextra) * np.cos(theta) 
             y = (b + rextra) * np.sin(theta) 
-            yprime = x*np.cos(brng) - y*np.sin(brng) - bx
-            xprime = x*np.sin(brng) + y*np.cos(brng) + ax
+            yprime = x*np.cos(brng) - y*np.sin(brng) + orix*bx #longitude
+            xprime = x*np.sin(brng) + y*np.cos(brng) + oriy*ax #latitude
         else:
             brng = getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) - np.pi
+            theta = np.linspace(brng, brng + np.pi * n * 2 , 200)
+            z = (c * theta) + hmin + bufferH#altitude in m 
             y = (a + rextra) * np.cos(theta) 
             x = (b + rextra) * np.sin(theta)
-            xprime = x*np.cos(brng) - y*np.sin(brng) - bx
-            yprime = x*np.sin(brng) + y*np.cos(brng) + ax
+            xprime = x*np.cos(brng) - y*np.sin(brng) + orix*bx #latitude
+            yprime = x*np.sin(brng) + y*np.cos(brng) + oriy*ax #longitude
         
         xT.extend(xprime)
         yT.extend(yprime)
