@@ -47,13 +47,13 @@ def getHelix(sep, bufferD, perimeter):
     rmax = np.sqrt(a**2 + b**2)
     rextra = (rmax - rr) + bufferD
     if(max(wall1, wall2) == wall1):
-        brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) - np.pi
+        brng = (np.pi / 2) - (getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + getBearingBetweenCoordinates(cc4[0],cc4[1],cc3[0],cc3[1])) / 2 
         x = (a + rextra) * np.cos(theta) 
         y = (b + rextra) * np.sin(theta) 
-        yprime = x*np.cos(brng) - y*np.sin(brng)
-        xprime = x*np.sin(brng) + y*np.cos(brng)
+        xprime = x*np.cos(brng) - y*np.sin(brng)
+        yprime = x*np.sin(brng) + y*np.cos(brng)
     else:
-        brng = getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) - np.pi
+        brng =  - (getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) + getBearingBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1])) / 2
         y = (a + rextra) * np.cos(theta) 
         x = (b + rextra) * np.sin(theta)
         xprime = x*np.cos(brng) - y*np.sin(brng)
@@ -85,22 +85,8 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
         cc3 = ps[i].c3
         cc4 = ps[i].c4
         dc = getDistanceBetweenCoordinates(Center[0],Center[1],ps[i].C[0],ps[i].C[1])
-        brngC = np.pi - getBearingBetweenCoordinates(Center[0],Center[1],ps[i].C[0],ps[i].C[1])
-        orix = 0
-        oriy = 0
-        if((brngC*180) / np.pi > 180 ):
-            orix = -1
-            if((brngC*180) / np.pi > 90 ):
-                oriy = 1
-            else:
-                oriy = -1
-        else:
-            orix = 1
-            if((brngC*180) / np.pi > 270 ):
-                oriy = -1
-            else:
-                oriy = 1
-        ax = np.sqrt((dc**2)/((np.tan(brngC))+ 1))
+        brngC = getBearingBetweenCoordinates(Center[0],Center[1],ps[i].C[0],ps[i].C[1]) + np.pi / 2
+        ax = np.sqrt((dc**2)/((np.tan(brngC))**2 + 1))
         bx = ax * np.tan(brngC)
         hmax = ps[i].hmax
         hmin = ps[i].hmin
@@ -115,21 +101,21 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
         rmax = np.sqrt(a**2 + b**2)
         rextra = (rmax - rr) + bufferD
         if(max(wall1, wall2) == wall1):
-            brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) - np.pi
-            theta = np.linspace(brng, brng + np.pi * n * 2 , 200)
-            z = (c * theta) + hmin + bufferD #altitude in m 
+            brng = (np.pi / 2) - (getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + getBearingBetweenCoordinates(cc4[0],cc4[1],cc3[0],cc3[1])) / 2 
+            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 200)
+            z = (c * theta) + hmin + bufferH #altitude in m 
             x = (a + rextra) * np.cos(theta) 
             y = (b + rextra) * np.sin(theta) 
-            yprime = x*np.cos(brng) - y*np.sin(brng) + orix*bx #longitude
-            xprime = x*np.sin(brng) + y*np.cos(brng) + oriy*ax #latitude
+            xprime = x*np.cos(brng) - y*np.sin(brng) + ax #longitude
+            yprime = x*np.sin(brng) + y*np.cos(brng) + bx #latitude
         else:
-            brng = getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) - np.pi
-            theta = np.linspace(brng, brng + np.pi * n * 2 , 200)
-            z = (c * theta) + hmin + bufferH#altitude in m 
+            brng =  - (getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) + getBearingBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1])) / 2
+            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 200)
+            z = (c * theta) + hmin + bufferH #altitude in m 
             y = (a + rextra) * np.cos(theta) 
             x = (b + rextra) * np.sin(theta)
-            xprime = x*np.cos(brng) - y*np.sin(brng) + orix*bx #latitude
-            yprime = x*np.sin(brng) + y*np.cos(brng) + oriy*ax #longitude
+            xprime = x*np.cos(brng) - y*np.sin(brng) - ax #latitude
+            yprime = x*np.sin(brng) + y*np.cos(brng) + bx #longitude
         
         xT.extend(xprime)
         yT.extend(yprime)
@@ -174,56 +160,115 @@ def getMultiFacade(sep, bufferD, walls, ori): #ori = [-1, 1], 1 = Outside facade
     xT = []
     yT = []
     zT = []
-    while (i < len(walls)):
-        cc1 = walls[i].c1
-        cc2 = walls[i].c2
-        hmax = walls[i].hmax
-        hmin = walls[i].hmin
-        brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + (ori*np.pi) / 2
-        [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD, brng)
-        [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD, brng)
-        n = round(hmax/sep)
-        if (i + 1) % 2 == 0:
-            x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
-            y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
-            z = np.linspace(0,hmax,len(x))
-            j = len(x) - 1
-            h = 0
-            while j > 0:
-                z[j] = hmin + sep*h
-                z[j - 1] = hmin + sep*h
-                if(hmin + sep*h > hmax):
-                    z[j] = hmax
-                    z[j - 1] = hmax
-                j = j - 2
-                h = h + 1
-            z = z[::-1]
-            x = np.append(x,x[-2])
-            y = np.append(y,y[-2])
-            z = np.append(z,hmax)
-        else:
-            x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
-            y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
-            z = np.linspace(0,hmax,len(x))
-            j = 0
-            h = 0
-            while j < len(x):
-                z[j] = hmax - sep*h
-                z[j + 1] = hmax - sep*h
-                if(hmax - sep*h < hmin):
-                    z[j] = hmin
-                    z[j + 1] = hmin
-                j = j + 2
-                h = h + 1
-            
-            x = np.append(x,x[-2])
-            y = np.append(y,y[-2])
-            z = np.append(z,hmin)
+    if(ori == 1):
+        while (i < len(walls)):
+            cc1 = walls[i].c1
+            cc2 = walls[i].c2
+            hmax = walls[i].hmax
+            hmin = walls[i].hmin
+            brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + (np.pi) / 2
+            [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD, brng)
+            [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD, brng)
+            n = round(hmax/sep)
+            if (i + 1) % 2 == 0:
+                x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
+                y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
+                z = np.linspace(0,hmax,len(x))
+                j = len(x) - 1
+                h = 0
+                while j > 0:
+                    z[j] = hmin + sep*h
+                    z[j - 1] = hmin + sep*h
+                    if(hmin + sep*h > hmax):
+                        z[j] = hmax
+                        z[j - 1] = hmax
+                    j = j - 2
+                    h = h + 1
+                z = z[::-1]
+                x = np.append(x,x[-2])
+                y = np.append(y,y[-2])
+                z = np.append(z,hmax)
+            else:
+                x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
+                y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
+                z = np.linspace(0,hmax,len(x))
+                j = 0
+                h = 0
+                while j < len(x):
+                    z[j] = hmax - sep*h
+                    z[j + 1] = hmax - sep*h
+                    if(hmax - sep*h < hmin):
+                        z[j] = hmin
+                        z[j + 1] = hmin
+                    j = j + 2
+                    h = h + 1
+                
+                x = np.append(x,x[-2])
+                y = np.append(y,y[-2])
+                z = np.append(z,hmin)
 
-        xT.extend(x)
-        yT.extend(y)
-        zT.extend(z)
-            
-        i = i + 1
+            xT.extend(x)
+            yT.extend(y)
+            zT.extend(z)
+                
+            i = i + 1
+    if(ori == -1):
+         while (i < len(walls)):
+            cc1 = walls[i].c1
+            cc2 = walls[i].c2
+            hmax = walls[i].hmax
+            hmin = walls[i].hmin
+            brngprime1 = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1])
+            brngprime2 = getBearingBetweenCoordinates(cc2[0],cc2[1],cc1[0],cc1[1])
+            Lat1p,Lon1p = getLocationAtBearing(cc1[0],cc1[1],bufferD/2,brngprime1)
+            Lat2p,Lon2p = getLocationAtBearing(cc2[0],cc2[1],bufferD/2,brngprime2)
+            brng = getBearingBetweenCoordinates(Lat1p,Lon1p,Lat2p,Lon2p) - (np.pi) / 2
+            [pLat1,pLon1] = getLocationAtBearing(Lat1p,Lon1p,bufferD, brng)
+            [pLat2,pLon2] = getLocationAtBearing(Lat2p,Lon2p,bufferD, brng)
+            n = round(hmax/sep)
+            if (i + 1) % 2 == 0:
+                x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
+                y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
+                z = np.linspace(0,hmax,len(x))
+                j = len(x) - 1
+                h = 0
+                while j > 0:
+                    z[j] = hmin + sep*h
+                    z[j - 1] = hmin + sep*h
+                    if(hmin + sep*h > hmax):
+                        z[j] = hmax
+                        z[j - 1] = hmax
+                    j = j - 2
+                    h = h + 1
+                z = z[::-1]
+                x = np.append(x,x[-2])
+                y = np.append(y,y[-2])
+                z = np.append(z,hmax)
+            else:
+                x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
+                y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
+                z = np.linspace(0,hmax,len(x))
+                j = 0
+                h = 0
+                while j < len(x):
+                    z[j] = hmax - sep*h
+                    z[j + 1] = hmax - sep*h
+                    if(hmax - sep*h < hmin):
+                        z[j] = hmin
+                        z[j + 1] = hmin
+                    j = j + 2
+                    h = h + 1
+                
+                x = np.append(x,x[-2])
+                y = np.append(y,y[-2])
+                z = np.append(z,hmin)
+
+            xT.extend(x)
+            yT.extend(y)
+            zT.extend(z)
+                
+            i = i + 1
+    if(ori != 1 and ori != -1):
+        return 0,0,0
 
     return xT,yT,zT
