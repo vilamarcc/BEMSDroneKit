@@ -75,11 +75,11 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
     yT.extend(yp1)
     zT.extend(zp1)
     tT.extend(tp1)
-    xT.append(xT[-1])
-    yT.append(yT[-1])
-    zT.append(zT[-1] + bufferH)
-    tT.append(tT[-1])
     while(i < len(ps)):
+        xT.append(xT[-1])
+        yT.append(yT[-1])
+        zT.append(zT[-1] + bufferH)
+        tT.append(tT[-1])
         cc1 = ps[i].c1 
         cc2 = ps[i].c2
         cc3 = ps[i].c3
