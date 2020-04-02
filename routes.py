@@ -40,7 +40,7 @@ def getHelix(sep, bufferD, perimeter):
     b = min(wall2,wall1) / 2
     n = (hmax / sep)
     c = (hmax - hmin) / (2 * np.pi * n)
-    theta = np.linspace(0, np.pi * n * 2 , 200)
+    theta = np.linspace(0, np.pi * n * 2 , 100)
     z = (c * theta) + hmin #altitude in m 
     alpha = np.arctan2(b,a)
     rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))
@@ -102,7 +102,7 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
         rextra = (rmax - rr) + bufferD
         if(max(wall1, wall2) == wall1):
             brng = (np.pi / 2) - (getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + getBearingBetweenCoordinates(cc4[0],cc4[1],cc3[0],cc3[1])) / 2 
-            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 200)
+            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 100)
             z = (c * theta) + hmin + bufferH #altitude in m 
             x = (a + rextra) * np.cos(theta) 
             y = (b + rextra) * np.sin(theta) 
@@ -110,7 +110,7 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
             yprime = x*np.sin(brng) + y*np.cos(brng) + bx #latitude
         else:
             brng =  - (getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) + getBearingBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1])) / 2
-            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 200)
+            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 100)
             z = (c * theta) + hmin + bufferH #altitude in m 
             y = (a + rextra) * np.cos(theta) 
             x = (b + rextra) * np.sin(theta)

@@ -6,7 +6,7 @@ from pymavlink import mavutil
 def connectDrone():
     print('Connecting.............................')
     connection_string = '/dev/ttyAMA0'
-    baud_rate = 921600
+    baud_rate = 115200
     print('Connection to the vehicle on %s'%connection_string)
     vehicle = connect(connection_string, baud=baud_rate,wait_ready=True)
     return vehicle
@@ -15,8 +15,8 @@ def connectSITL():
     print('Connecting.............................')
     connection_string = 'tcp:127.0.0.1:5762'
     baud_rate = 921600
-    print('Connection to the vehicle on %s'%connection_string)
     vehicle = connect(connection_string, baud=baud_rate,wait_ready=True)
+    print('Connection to the vehicle on %s'%connection_string)
     return vehicle
 
 def arm_and_wait(vehicle):
