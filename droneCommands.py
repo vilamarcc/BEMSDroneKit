@@ -57,6 +57,7 @@ def ChangeMode(vehicle, mode):
     while vehicle.mode != VehicleMode(mode):
         vehicle.mode = VehicleMode(mode)
         time.sleep(0.5)
+        print("Mode changed to: " + mode)
     return True
 
 def readmission(aFileName, vehicle):
@@ -102,6 +103,7 @@ def upload_mission(aFileName, vehicle):
     vehicle.commands.upload()
 
 def printStatus(vehicle):
+    print("-------------------------------------------------------------------------------")
     print("STAUTS:")
     vehicle.wait_ready('autopilot_version')
     print('Autopilot version: %s'%vehicle.version)
@@ -113,3 +115,32 @@ def printStatus(vehicle):
     print('Airspeed: %s'% vehicle.airspeed)
     print('Mode: %s'% vehicle.mode.name)
     print('Armed: %s'%vehicle.armed)
+    print("-------------------------------------------------------------------------------")
+
+def arm_and_takeoff(vehicle,hmax):
+
+    print("Basic pre-arm checks")
+    while not vehicle.is_armable:
+        print(" Waiting for vehicle to initialise...")
+        time.sleep(5)
+
+    print("Arming motors")
+    # Copter should arm in GUIDED mode
+    vehicle.mode    = VehicleMode("GUIDED")
+    vehicle.armed   = True
+
+    # Confirm vehicle armed before attempting to take off
+    while not vehicle.armed:
+        print(" Waiting for arming...")
+        time.sleep(1)
+
+    print("Taking off")
+    vehicle.simple_takeoff(hmax)
+
+    while True:
+        print(" Altitude: " + str(vehicle.location.global_relative_frame.alt))
+        #Break and return from function just below target altitude.
+        if vehicle.location.global_relative_frame.alt>=hmax*0.95:
+            print("Reached target altitude")
+            break
+        time.sleep(1)
