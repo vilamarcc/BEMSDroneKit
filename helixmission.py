@@ -2,6 +2,13 @@ from missioncalculation import writeSimpleHelixMission
 from droneCommands import *
 from dronekit import *
 from routes import perimeter
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from plotRoutes import *
 
 #BUILDING SAMPLE LIBRARY EETAC CBL#
 
@@ -10,7 +17,9 @@ c2 = [41.2754258, 1.9849782]
 c3 = [41.2755750, 1.9856085]
 c4 = [41.2758965, 1.9854744]
 
-
+x = []
+y = []
+z = []
 p = 0
 sep = 0
 hmin = 0
@@ -129,13 +138,18 @@ if(selectmode == str(2)):
     if(sitl == str(1)):
         vehicle = connectSITL()
         clear_mission(vehicle)
-        writeSimpleHelixMission(sep,bufferD,p,filename)
+        x,y,z = writeSimpleHelixMission(sep,bufferD,p,filename)
         print("Mission Calculated")
         upload_mission(filename + ".txt",vehicle)
         n_WP, missionList = get_current_mission(vehicle)
         vehicle.mode = VehicleMode("STABILIZE")
         printStatus(vehicle)
         print("Mission ready to start.")
+        print("Do you wish to see a preview of the route? [Y/N]")
+        plot = input()
+        if(plot == "y" or plot == "Y"):
+            plotPreviewSimpleHelix(x,y,z,p,1,vehicle.home_location)
+
         print("\t 1 - Arm and Start Mission")
         se = input()
         if(se == str(1)):

@@ -29,6 +29,7 @@ def writeSimpleHelixMission(sep, bufferD, perimeter, filename):
     file.write(str(i + 5) + " 0 3 20 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
     file.write(str(i + 6) + " 0 3 21 0 0 0 0 0 0 0 1\n")
     file.close()
+    return xf,yf,zf
 
 def writeSimpleFacadeMission(sep, bufferD, wall, ori, filename):
     filename = filename + ".txt"
