@@ -62,7 +62,7 @@ def plotPreviewSimpleHelix(x,y,z,perimeter,n,home):
         linez = [0,hmax]
         ax.plot(linex,liney,linez)
         i = i + 1
-    ax.plot(basex,basey,hmax)
+    ax.plot(basex,basey,hmax,color = "b", label = "Hmax")
     xs = np.linspace(min(cc1[0],cc2[0],cc3[0],cc4[0]),max(cc1[0],cc2[0],cc3[0],cc4[0]),2)
     ys = np.linspace(min(cc1[1],cc2[1],cc3[1],cc4[1]),max(cc1[1],cc2[1],cc3[1],cc4[1]),2)
     Xs, Ys = np.meshgrid(xs,ys)
@@ -71,6 +71,60 @@ def plotPreviewSimpleHelix(x,y,z,perimeter,n,home):
     surf._facecolors2d = surf._facecolors3d
     surf._edgecolors2d = surf._edgecolors3d
     ax.plot(basex,basey,0)
+    xT.insert(0,home.lat)
+    yT.insert(0,home.lon)
+    zT.insert(0,hmax)
+    xT.insert(0,home.lat)
+    yT.insert(0,home.lon)
+    zT.insert(0,0)
+    xT.append(x[-1])
+    yT.append(y[-1])
+    zT.append(hmax)
+    xT.append(home.lat)
+    yT.append(home.lon)
+    zT.append(hmax)
+    xT.append(home.lat)
+    yT.append(home.lon)
+    zT.append(0)
+    ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
+    ax.plot(xT, yT, zT)
+    ax.legend()
+    set_axes_equal(ax,hmax)
+    plt.show()
+
+def plotPreviewSimpleFacade(x,y,z,wall,n,home):
+    fig = plt.figure(n)
+    ax = fig.gca(projection='3d')
+    #mpl.rcParams['legend.fontsize'] = 10
+    cc1 = wall.c1
+    cc2 = wall.c2
+    hmax = wall.hmax
+    hmin = wall.hmin
+    xT = []
+    yT = []
+    zT = []
+    xT.extend(x)
+    yT.extend(y)
+    zT.extend(z)
+    ax.scatter(cc1[0],cc1[1],hmax, color = "b")
+    ax.scatter(cc2[0],cc2[1],hmax, color = "b")
+    ax.scatter(cc1[0],cc1[1],0, color = "b")
+    ax.scatter(cc2[0],cc2[1],0, color = "b")
+    ax.scatter(home.lat,home.lon,color = "r", label = "Home")
+    i = 0
+    ccs = [cc1,cc2]
+    while i < 2:
+        cc = ccs[i]
+        linex = [cc[0],cc[0]]
+        liney = [cc[1],cc[1]]
+        linez = [0,hmax]
+        ax.plot(linex,liney,linez)
+        i = i + 1
+    basex = [cc1[0],cc2[0]]
+    basey = [cc1[1],cc2[1]]
+    ax.plot(basex,basey,hmax,color = "b",label = "Hmax")
+    ax.plot(basex,basey,0,color = "c")
+    ax.plot(basex,basey,hmin,color = "g",label = "Hmin")
     xT.insert(0,home.lat)
     yT.insert(0,home.lon)
     zT.insert(0,hmax)
