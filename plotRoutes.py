@@ -36,7 +36,12 @@ def plotPreviewSimpleHelix(x,y,z,perimeter,n,home):
     cc4 = perimeter.c4
     hmax = perimeter.hmax
     hmin = perimeter.hmin
-
+    xT = []
+    yT = []
+    zT = []
+    xT.extend(x)
+    yT.extend(y)
+    zT.extend(z)
     ax.scatter(cc1[0],cc1[1],hmax, color = "b")
     ax.scatter(cc2[0],cc2[1],hmax, color = "b")
     ax.scatter(cc3[0],cc3[1],hmax, color = "b")
@@ -58,31 +63,31 @@ def plotPreviewSimpleHelix(x,y,z,perimeter,n,home):
         ax.plot(linex,liney,linez)
         i = i + 1
     ax.plot(basex,basey,hmax)
-    xs = np.linspace(min(cc1[0],cc2[0],cc3[0],cc4[0]),max(cc1[0],cc2[0],cc3[0],cc4[0]),5)
-    ys = np.linspace(min(cc1[1],cc2[1],cc3[1],cc4[1]),max(cc1[1],cc2[1],cc3[1],cc4[1]),5)
+    xs = np.linspace(min(cc1[0],cc2[0],cc3[0],cc4[0]),max(cc1[0],cc2[0],cc3[0],cc4[0]),2)
+    ys = np.linspace(min(cc1[1],cc2[1],cc3[1],cc4[1]),max(cc1[1],cc2[1],cc3[1],cc4[1]),2)
     Xs, Ys = np.meshgrid(xs,ys)
-    Zsmax = Xs*0 + hmax
     Zsmin = Xs*0 + hmin
-    ax.plot_surface(Xs,Ys,Zsmax, color = "r", label = "Hmax")
-    ax.plot_surface(Xs,Ys,Zsmin, color = "g", label = "Hmin")
+    surf = ax.plot_surface(Xs,Ys,Zsmin, color = "g", label = "Hmin", linewidth = 0, rstride = 10, cstride = 10)
+    surf._facecolors2d = surf._facecolors3d
+    surf._edgecolors2d = surf._edgecolors3d
     ax.plot(basex,basey,0)
-    np.insert(x,0,home.lat)
-    np.insert(y,0,home.lon)
-    np.insert(z,0,hmax)
-    np.insert(x,0,home.lat)
-    np.insert(y,0,home.lon)
-    np.insert(z,0,0)
-    np.append(x,x[-1])
-    np.append(y,y[-1])
-    np.append(z,hmax)
-    np.append(x,home.lat)
-    np.append(y,home.lon)
-    np.append(z,hmax)
-    np.append(x,home.lat)
-    np.append(y,home.lon)
-    np.append(z,0)
+    xT.insert(0,home.lat)
+    yT.insert(0,home.lon)
+    zT.insert(0,hmax)
+    xT.insert(0,home.lat)
+    yT.insert(0,home.lon)
+    zT.insert(0,0)
+    xT.append(x[-1])
+    yT.append(y[-1])
+    zT.append(hmax)
+    xT.append(home.lat)
+    yT.append(home.lon)
+    zT.append(hmax)
+    xT.append(home.lat)
+    yT.append(home.lon)
+    zT.append(0)
     ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
-    ax.plot(x, y, z)
-    #ax.legend()
+    ax.plot(xT, yT, zT)
+    ax.legend()
     set_axes_equal(ax,hmax)
     plt.show()
