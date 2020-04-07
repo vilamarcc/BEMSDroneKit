@@ -139,6 +139,7 @@ def getFacade(sep, bufferD, wall, ori): #ori = Orientation of the wall towards o
     cc1 = wall.c1
     cc2 = wall.c2
     hmax = wall.hmax
+    hmin = wall.hmin
     brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + ori*np.pi / 2
     [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD, brng)
     [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD, brng)
@@ -151,6 +152,9 @@ def getFacade(sep, bufferD, wall, ori): #ori = Orientation of the wall towards o
     while i < len(x):
         z[i] = hmax - sep*h
         z[i + 1] = hmax - sep*h
+        if(hmax - sep*h < hmin):
+            z[i] = hmin
+            z[i + 1] = hmin
         i = i + 2
         h = h + 1
     return x,y,z

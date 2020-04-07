@@ -37,16 +37,17 @@ def writeSimpleFacadeMission(sep, bufferD, wall, ori, filename):
     file.write("QGC WPL 110\n")
     x,y,z = getFacade(sep,bufferD,wall,ori)
     j = 0
-    file.write("0 1 0 22 0 0 0 0 0 0 " + str(round(z[0] + 2,2)) + " " + "1\n")
-    file.write("1 0 10 16 0 0 0 0 " + str(x[0]) + " " + str(y[0]) + " " + str(round(z[0] + 2,2)) + " " + "1\n")
+    file.write("0 1 0 22 0 0 0 0 0 0 " + str(round(z[0],2)) + " " + "1\n")
+    file.write("1 0 10 16 0 0 0 0 " + str(x[0]) + " " + str(y[0]) + " " + str(round(z[0],2)) + " " + "1\n")
     while (j < len(x)):
         file.write(str(j + 1) +  " 0 10 16 0 0 0 0 " + str(x[j]) + " " + str(y[j]) + " " + str(round(z[j],2)) + " " + "1\n")
         j = j + 1
     
-    file.write(str(j) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0] + 2,2)) + " " + "1\n")
-    file.write(str(j + 1) + " 0 10 20 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0] + 2,2)) + " " + "1\n")
+    file.write(str(j) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
+    file.write(str(j + 1) + " 0 10 20 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
     file.write(str(j + 2) + " 0 10 21 0 0 0 0 0 0 0 1\n")
     file.close()
+    return x,y,z
 
 def writeMultiFacadeMission(sep,bufferD,walls,ori,filename):
     filename = filename + ".txt"
