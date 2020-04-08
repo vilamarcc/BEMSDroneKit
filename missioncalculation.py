@@ -37,10 +37,16 @@ def writeSimpleFacadeMission(sep, bufferD, wall, ori, filename):
     file.write("QGC WPL 110\n")
     x,y,z = getFacade(sep,bufferD,wall,ori)
     j = 0
+    if(ori == 1):
+        poi = 270
+    if(ori == -1):
+        poi = 90
+
     file.write("0 1 0 22 0 0 0 0 0 0 " + str(round(z[0],2)) + " " + "1\n")
     file.write("1 0 10 16 0 0 0 0 " + str(x[0]) + " " + str(y[0]) + " " + str(round(z[0],2)) + " " + "1\n")
+    file.write("2 0 3 201 0 " + str(poi) + " 0 1 1 0 0 0")
     while (j < len(x)):
-        file.write(str(j + 1) +  " 0 10 16 0 0 0 0 " + str(x[j]) + " " + str(y[j]) + " " + str(round(z[j],2)) + " " + "1\n")
+        file.write(str(j + 3) + " 0 10 16 0 0 0 0 " + str(x[j]) + " " + str(y[j]) + " " + str(round(z[j],2)) + " " + "1\n")
         j = j + 1
     
     file.write(str(j) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
@@ -71,7 +77,6 @@ def writeMultiHelixMission(sep,bufferD,bufferH,perimeters,filename):
     filename = filename + ".txt"
     file = open(str(filename), "w")
     file.write("QGC WPL 110\n")
-    alpha = (2*np.pi)/nWPperCircle #rad
     x,y,z,theta = getMultiHelix(sep, bufferD,bufferH, perimeters)
     perimeters.sort()
     C = perimeters[0].C
