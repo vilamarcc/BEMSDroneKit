@@ -15,16 +15,23 @@ mpl.rcParams['legend.fontsize'] = 10
 fig = plt.figure()
 
 #Square
-cc11 = [41.275321, 1.9843143]
-cc22 = [41.27507910, 1.98441620]
-cc33 = [41.27515570 ,1.98475960]
-cc44 = [41.27540170, 1.98464420]
+cc1 = [41.275321, 1.9843143]
+cc2 = [41.27507910, 1.98441620]
+cc3 = [41.27515570 ,1.98475960]
+cc4 = [41.27540170, 1.98464420]
+
 
 #Rectangle
-cc1 = [41.27545100, 1.98420030]
-cc2 = [41.27479290, 1.98449130]
-cc3 = [41.27489470, 1.98491650]
-cc4 = [41.27554780, 1.98462680]
+cc11 = [41.27545100, 1.98420030]
+cc21 = [41.27479290, 1.98449130]
+cc31 = [41.27489470, 1.98491650]
+cc41 = [41.27554780, 1.98462680]
+
+#Square 2
+cc11 = [41.2753886, 1.984346]
+cc21 = [41.2749733, 1.984545]
+cc31 = [41.2750257, 1.9847381]
+cc41 = [41.2754379, 1.9845557]
 
 ax = fig.gca(projection='3d')
 
@@ -57,15 +64,17 @@ ax.plot(basex,basey,0)
 p1 = perimeter(cc1,cc2,cc3,cc4,hmax,hmin)
 #p2 = perimeter(cc11,cc22,cc33,cc44,hmax,10)
 #ps = [p1,p2]
+wall1 = wall(cc1,cc2,hmax,hmin)
 sep = 5
 bufferD = 5
 n = hmax/sep
-x,y,z,theta = getHelix(sep,bufferD,p1,hmin)
+#x,y,z,theta = getHelix(sep,bufferD,p1)
 C = p1.C
-x,y,z = getHelixinCoords(x,y,z,C)
+#x,y,z = getHelixinCoords(x,y,z,C)
 
-writeSimpleHelixMission(0,sep,16,bufferD,p1,"Mission1")
-#x,y,z = getFacade(hmax,sep,bufferD,cc3,cc4)
+#writeSimpleHelixMission(0,sep,16,bufferD,p1,"Mission1")
+x,y,z = getFacade(sep,bufferD,wall1,1)
+writeSimpleFacadeMission(sep,bufferD,wall1,1,"Mission1")
 ax.plot(x, y, z)
 
 def set_axes_equal(ax):

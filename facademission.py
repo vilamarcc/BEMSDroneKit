@@ -156,17 +156,16 @@ if(selectmode == str(2)):
                     time.sleep(5)
                     print("Current WP: %d of %d " % (vehicle.commands.next, vehicle.commands.count))
                     printStatus(vehicle)
-                    if vehicle.commands.next == vehicle.commands.count:
+                    if vehicle.commands.next == (vehicle.commands.count - 1):
                         print("Final waypoint reached")
-                        #borramos mision y cerramos vehiculo
-                        clear_mission(vehicle)
-                        print("Mission deleted")
                         t = False
                         time.sleep(5)
                         break
             else:
                 print("ERROR CLOSING VEHICLE")
-        
+
+            clear_mission(vehicle)
+            print("Mission deleted")
             print ('Mision Ended...............................')
             print("Disarming.........................")
             vehicle.armed = False
