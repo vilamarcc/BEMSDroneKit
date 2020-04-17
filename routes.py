@@ -26,7 +26,7 @@ class wall:
         self.hmax = hma
         self.hmin = hmi
     def getBearing(self):
-        return getBearingBetweenCoordinates(self.c1[0],self.c1[1],self.c2[0],self.c2[1])
+        return max(getBearingBetweenCoordinates(self.c1[0],self.c1[1],self.c2[0],self.c2[1]),getBearingBetweenCoordinates(self.c2[0],self.c2[1],self.c1[0],self.c1[1]))
 
 def getHelix(sep, bufferD, perimeter): 
 

@@ -49,9 +49,9 @@ def writeSimpleFacadeMission(sep, bufferD, wall, ori, filename):
         file.write(str(j + 4) + " 0 0 115 " + str(poi) + " 0 " + str(1) + " 0 0 0 0 1\n")
         j = j + 2
 
-    file.write(str(j + 3) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
-    file.write(str(j + 4) + " 0 10 20 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
-    file.write(str(j + 5) + " 0 10 21 0 0 0 0 0 0 0 1\n")  
+    file.write(str(len(x) + 2) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
+    file.write(str(len(x) + 3) + " 0 10 20 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
+    file.write(str(len(x) + 4) + " 0 10 21 0 0 0 0 0 0 0 1\n")  
     file.close()
     return x,y,z
 
@@ -60,18 +60,34 @@ def writeMultiFacadeMission(sep,bufferD,walls,ori,filename):
     file = open(str(filename), "w")
     file.write("QGC WPL 110\n")
     x,y,z = getMultiFacade(sep,bufferD,walls,ori)
+    brng = walls[0].getBearing()
+    poi = round((brng  - (np.pi/2)*ori)*(180/np.pi),3)
+    if(poi < 0):
+        poi = poi + 360
     j = 0
     file.write("0 1 0 22 0 0 0 0 0 0 " + str(round(z[0] + 2,2)) + " " + "1\n")
-    file.write("1 0 10 16 0 0 0 0 " + str(x[0]) + " " + str(y[0]) + " " + str(round(z[0] + 2,2)) + " " + "1\n")
-
-    while (j < len(x)):
-        file.write(str(j + 1) +  " 0 10 16 0 0 0 0 " + str(x[j]) + " " + str(y[j]) + " " + str(round(z[j],2)) + " " + "1\n")
-        j = j + 1
+    file.write("1 0 10 16 0 0 0 0 " + str(x[0]) + " " + str(y[0]) + " " + str(round(z[0],2)) + " " + "1\n")
+    file.write("2 0 0 115 " + str(poi) + " 0 " + str(1) + " 0 0 0 0 1\n")
+    nW = round(len(x)/4)
+    cW = 1
+    i = 0
+    while (i < len(x)):
+        file.write(str(j + 3) + " 0 10 16 0 0 0 0 " + str(x[i]) + " " + str(y[i]) + " " + str(round(z[i],2)) + " " + "1\n")
+        file.write(str(j + 4) + " 0 0 115 " + str(poi) + " 0 " + str(1) + " 0 0 0 0 1\n")
+        j = j + 2
+        i = i + 1
+        if(i > nW*cW):
+            brng = walls[cW].getBearing()
+            poi = round((brng  - (np.pi/2)*ori)*(180/np.pi),3)
+            if(poi < 0):
+                poi = poi + 360
+            cW = cW + 1
     
-    file.write(str(j) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0] + 2,2)) + " " + "1\n")
-    file.write(str(j + 1) + " 0 10 20 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0] + 2,2)) + " " + "1\n")
-    file.write(str(j + 2) + " 0 10 21 0 0 0 0 0 0 0 1\n")
+    file.write(str(len(x) + 2) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
+    file.write(str(len(x) + 3) + " 0 10 20 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
+    file.write(str(len(x) + 4) + " 0 10 21 0 0 0 0 0 0 0 1\n")
     file.close()
+    return x,y,z
 
 def writeMultiHelixMission(sep,bufferD,bufferH,perimeters,filename):
     filename = filename + ".txt"
