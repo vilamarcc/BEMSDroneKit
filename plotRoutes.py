@@ -145,3 +145,66 @@ def plotPreviewSimpleFacade(x,y,z,wall,n,home):
     ax.legend()
     set_axes_equal(ax,hmax)
     plt.show()
+
+def plotPreviewMultiFacade(x,y,z,walls,n,home):
+    fig = plt.figure(n)
+    ax = fig.gca(projection='3d')
+    #mpl.rcParams['legend.fontsize'] = 10
+    xT = []
+    yT = []
+    zT = []
+    xT.extend(x)
+    yT.extend(y)
+    zT.extend(z)
+    i = 0
+    basex = []
+    basey = []
+    hmax = walls[0].hmax
+    hmin = walls[0].hmin
+    while i < len(walls):
+        cc1 = walls[i].c1
+        cc2 = walls[i].c2
+        ax.scatter(cc1[0],cc1[1],hmax, color = "b")
+        ax.scatter(cc2[0],cc2[1],hmax, color = "b")
+        ax.scatter(cc1[0],cc1[1],0, color = "b")
+        ax.scatter(cc2[0],cc2[1],0, color = "b")
+        basex.append(cc1[0])
+        basey.append(cc1[1])
+        i = i + 1
+        if (i == len(walls)):
+            basex.append(cc2[0])
+            basey.append(cc2[1])
+    
+    ax.plot(basex,basey,hmax, color = "b")
+    ax.plot(basex,basey,hmin, color = "b")
+
+    ax.scatter(home.lat,home.lon,color = "r", label = "Home")
+    i = 0
+    while i < len(walls):
+        cc = walls[i].c1
+        linex = [cc[0],cc[0]]
+        liney = [cc[1],cc[1]]
+        linez = [0,hmax]
+        ax.plot(linex,liney,linez)
+        i = i + 1
+
+    xT.insert(0,home.lat)
+    yT.insert(0,home.lon)
+    zT.insert(0,hmax)
+    xT.insert(0,home.lat)
+    yT.insert(0,home.lon)
+    zT.insert(0,0)
+    xT.append(x[-1])
+    yT.append(y[-1])
+    zT.append(hmax)
+    xT.append(home.lat)
+    yT.append(home.lon)
+    zT.append(hmax)
+    xT.append(home.lat)
+    yT.append(home.lon)
+    zT.append(0)
+    ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
+    ax.plot(xT, yT, zT)
+    ax.legend()
+    set_axes_equal(ax,hmax)
+    plt.show()

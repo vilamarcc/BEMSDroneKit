@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from plotRoutes import plotPreviewSimpleFacade
+from plotRoutes import plotPreviewMultiFacade
 
 #BUILDING SAMPLE LIBRARY EETAC CBL#
 
@@ -146,8 +146,7 @@ if(selectmode == str(2)):
         print("Do you wish to see a preview of the route? [Y/N]")
         plot = input()
         if(plot == "y" or plot == "Y"):
-            #plotPreviewSimpleFacade(x,y,z,w,1,vehicle.home_location)
-            h = 0
+            plotPreviewMultiFacade(x,y,z,ws,1,vehicle.home_location)
 
         print("\t 1 - Arm and Start Mission")
         se = input()
