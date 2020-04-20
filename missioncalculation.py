@@ -55,13 +55,13 @@ def writeSimpleFacadeMission(sep, bufferD, wall, ori, filename):
     file.close()
     return x,y,z
 
-def writeMultiFacadeMission(sep,bufferD,walls,ori,filename):
+def writeMultiFacadeMission(sep,bufferD,walls,ori,cW,filename): #cW = Counterclock  or clock wise [-1/1]
     filename = filename + ".txt"
     file = open(str(filename), "w")
     file.write("QGC WPL 110\n")
     x,y,z = getMultiFacade(sep,bufferD,walls,ori)
     brng = walls[0].getBearing()
-    poi = round((brng  - (np.pi/2)*ori)*(180/np.pi),3)
+    poi = round((brng  - (np.pi/2)*cW)*(180/np.pi),3)
     if(poi < 0):
         poi = poi + 360
     j = 0
@@ -78,7 +78,7 @@ def writeMultiFacadeMission(sep,bufferD,walls,ori,filename):
         i = i + 1
         if(i > nW*qW):
             brng = walls[qW].getBearing()
-            poi = round((brng  - (np.pi/2)*ori)*(180/np.pi),3)
+            poi = round((brng  - (np.pi/2)*cW)*(180/np.pi),3)
             if(poi < 0):
                 poi = poi + 360
             qW = qW + 1

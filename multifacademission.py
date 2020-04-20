@@ -26,6 +26,7 @@ hmin = 0
 bufferD = 0
 hmax = 0
 ori = 0
+cW = 0
 filename = ""
 
 print("Simple Facade Mission Script")
@@ -48,6 +49,8 @@ if(select == str(1)):
         bufferD = float(input())
         print("Orientation [1/-1]: ")
         ori = int(input())
+        print("Direction (Clock wise or CounterClock wise) [1/-1]: ")
+        cW = int(input())
         print("Filename to write: ")
         filename = str(input())
         print("\n")
@@ -57,6 +60,7 @@ if(select == str(1)):
         print("\t Maximum Height: " + str(hmax) + " m")
         print("\t Security Distance: " + str(bufferD) + " m")
         print("\t Orientation: " + str(ori))
+        print("\t Direction: " + str(cW))
         print("\t Filename: " + str(filename) + ".txt")
         print("-------------------------------------------------------------------------")
         print("COORDINATES OF DEFAULT WALL: [Latitude, Longitude] \n")
@@ -76,7 +80,7 @@ if(select == str(1)):
         else:
             paramT = False
 
-if(select == str(2)): #Falta
+if(select == str(2)): #Falta adaptar para multifachada
     print("Please input coordinates of walls:")
     paramT = False
     while(paramT == False):
@@ -100,6 +104,8 @@ if(select == str(2)): #Falta
         bufferD = float(input())
         print("Orientation [1/-1]: ")
         ori = int(input())
+        print("Direction (Clock wise or CounterClock wise) [-1/1]: ")
+        cW = int(input())
         print("Filename to write: ")
         filename = str(input())
         print("\n")
@@ -136,7 +142,7 @@ if(selectmode == str(2)):
     if(sitl == str(1)):
         vehicle = connectSITL()
         clear_mission(vehicle)
-        x,y,z = writeMultiFacadeMission(sep,bufferD,ws,ori,filename)
+        x,y,z = writeMultiFacadeMission(sep,bufferD,ws,ori,cW,filename)
         print("Mission Calculated")
         upload_mission(filename + ".txt",vehicle)
         n_WP, missionList = get_current_mission(vehicle)
