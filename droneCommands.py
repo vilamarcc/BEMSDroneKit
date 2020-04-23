@@ -2,6 +2,12 @@ from dronekit import *
 import time
 import argparse
 from pymavlink import mavutil
+from plotRoutes import plotLiveSimpleFacade
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+import numpy as np
 
 def connectDrone():
     print('Connecting.............................')
@@ -144,3 +150,32 @@ def arm_and_takeoff(vehicle,hmax):
             print("Reached target altitude")
             break
         time.sleep(1)
+
+def MissionStart(vehicle,hmax):
+    arm_and_takeoff(vehicle,hmax)
+    print("Changing to AUTO")
+    ChangeMode(vehicle, "AUTO")
+    vehicle.airspeed = 5.0
+    time.sleep(2)
+    if(vehicle.mode == "AUTO" and vehicle.armed == True):
+        time.sleep(2)
+        print("Mission Started")
+        t = True
+        while t == True:
+            time.sleep(5)
+            print("Current WP: %d of %d " % (vehicle.commands.next, vehicle.commands.count))
+            printStatus(vehicle)
+            if vehicle.commands.next == (vehicle.commands.count - 1):
+                print("Final waypoint reached")
+                t = False
+                time.sleep(5)
+                break
+    else:
+        print("ERROR CLOSING VEHICLE")
+
+    clear_mission(vehicle)
+    print("Mission deleted")
+    print ('Mision Ended...............................')
+    print("Disarming.........................")
+    vehicle.armed = False
+    print("Disarmed")

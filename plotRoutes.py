@@ -4,7 +4,9 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from routes import perimeter
+from routes import perimeter,wall
+from matplotlib.animation import FuncAnimation
+from dronekit import * 
 
 def set_axes_equal(ax, hmax):
 
@@ -208,3 +210,55 @@ def plotPreviewMultiFacade(x,y,z,walls,n,home):
     ax.legend()
     set_axes_equal(ax,hmax)
     plt.show()
+
+def plotLiveSimpleFacade(vehicle,wall,n):
+    plt.ion()
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    cc1 = wall.c1
+    cc2 = wall.c2
+    hmax = wall.hmax
+    hmin = wall.hmin
+    ax.scatter(cc1[0],cc1[1],hmax, color = "b")
+    ax.scatter(cc2[0],cc2[1],hmax, color = "b")
+    ax.scatter(cc1[0],cc1[1],0, color = "b")
+    ax.scatter(cc2[0],cc2[1],0, color = "b")
+    i = 0
+    ccs = [cc1,cc2]
+    while i < 2:
+        cc = ccs[i]
+        linex = [cc[0],cc[0]]
+        liney = [cc[1],cc[1]]
+        linez = [0,hmax]
+        ax.plot(linex,liney,linez)
+        i = i + 1
+    basex = [cc1[0],cc2[0]]
+    basey = [cc1[1],cc2[1]]
+    ax.plot(basex,basey,hmax,color = "b",label = "Hmax")
+    ax.plot(basex,basey,0,color = "c")
+    ax.plot(basex,basey,hmin,color = "g",label = "Hmin")
+
+    ax.scatter(vehicle.home_location.lat,vehicle.home_location.lon,0,label = "Home", color = "r")
+    ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
+    set_axes_equal(ax,hmax)
+    return fig
+
+def updatePlotSimpleFacade(fig,vehicle):
+    ax = fig.gca(projection='3d')
+    droneScatter = ax.scatter(vehicle.location.global_relative_frame.lat,vehicle.location.global_relative_frame.lon,vehicle.location.global_relative_frame.alt, label = "Vehicle", color = "g")
+    xT = []
+    yT = []
+    zT = []
+    route, = plt.plot(xT,yT,zT, color = "b", label = "Route")
+    ax.legend()
+    plt.draw()
+    while 1:
+        lat = [vehicle.location.global_relative_frame.lat]
+        lon = [vehicle.location.global_relative_frame.lon]
+        alt = [vehicle.location.global_relative_frame.alt]
+        droneScatter._offsets3d = (lat,lon,alt)
+        route.set_data_3d((np.append(xT, vehicle.location.global_relative_frame.lat)),(np.append(yT, vehicle.location.global_relative_frame.lon)),(np.append(zT, vehicle.location.global_relative_frame.alt)))
+        fig.canvas.draw()
+        fig.canvas.draw_idle()
+        plt.pause(0.01)
+        time.sleep(0.5)

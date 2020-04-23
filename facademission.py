@@ -8,7 +8,9 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from plotRoutes import plotPreviewSimpleFacade
+from plotRoutes import plotPreviewSimpleFacade,plotLiveSimpleFacade,updatePlotSimpleFacade
+import threading
+from matplotlib.animation import FuncAnimation
 
 #WALL SAMPLE  SOUTH WALL LIBRARY EETAC CBL#
 
@@ -142,34 +144,11 @@ if(selectmode == str(2)):
         print("\t 1 - Arm and Start Mission")
         se = input()
         if(se == str(1)):
-            time.sleep(3)
-            arm_and_takeoff(vehicle,hmax)
-            print("Changing to AUTO")
-            ChangeMode(vehicle, "AUTO")
-            vehicle.airspeed = 5.0
-            time.sleep(2)
-            if(vehicle.mode == "AUTO" and vehicle.armed == True):
-                time.sleep(2)
-                print("Mission Started")
-                t = True
-                while t == True:
-                    time.sleep(5)
-                    print("Current WP: %d of %d " % (vehicle.commands.next, vehicle.commands.count))
-                    printStatus(vehicle)
-                    if vehicle.commands.next == (vehicle.commands.count - 1):
-                        print("Final waypoint reached")
-                        t = False
-                        time.sleep(5)
-                        break
-            else:
-                print("ERROR CLOSING VEHICLE")
-
-            clear_mission(vehicle)
-            print("Mission deleted")
-            print ('Mision Ended...............................')
-            print("Disarming.........................")
-            vehicle.armed = False
-            print("Disarmed")
+            fig = plotLiveSimpleFacade(vehicle,w,2)
+            p = threading.Thread(target=updatePlotSimpleFacade(fig,vehicle) , name = "PLOT")
+            m = threading.Thread(target=MissionStart(vehicle,hmax) , name = "MISSION")
+            m.start()
+            p.start()
 
     if(sitl == str(2)):
         print("FALTA")
