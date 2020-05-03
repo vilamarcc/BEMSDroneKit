@@ -246,19 +246,33 @@ def plotLiveSimpleFacade(vehicle,wall,n):
 def updatePlotSimpleFacade(fig,vehicle):
     ax = fig.gca(projection='3d')
     droneScatter = ax.scatter(vehicle.location.global_relative_frame.lat,vehicle.location.global_relative_frame.lon,vehicle.location.global_relative_frame.alt, label = "Vehicle", color = "g")
-    xT = []
-    yT = []
-    zT = []
-    route, = plt.plot(xT,yT,zT, color = "b", label = "Route")
+    u = np.cos(vehicle.attitude.yaw)
+    v = np.sin(vehicle.attitude.yaw)
+    w = - np.pi / 2
+    arrowQuiver = plt.quiver(vehicle.location.global_relative_frame.lat,vehicle.location.global_relative_frame.lon,vehicle.location.global_relative_frame.alt,u,v,w,color = "b", length = 0.00005, arrow_length_ratio = 0.3)
+    route, = ax.plot3D([vehicle.location.global_relative_frame.lat],[vehicle.location.global_relative_frame.lon],[vehicle.location.global_relative_frame.alt], color = "b", label = "Route")
     ax.legend()
     plt.draw()
     while 1:
         lat = [vehicle.location.global_relative_frame.lat]
         lon = [vehicle.location.global_relative_frame.lon]
         alt = [vehicle.location.global_relative_frame.alt]
+        yaw = vehicle.attitude.yaw
+        u = np.sin(vehicle.attitude.yaw)
+        v = np.cos(vehicle.attitude.yaw)
+        xdata,ydata,zdata = route._verts3d
+        segments = quiver_data_to_segments(lat[0],lon[0],alt[0],u,v,w)
+        arrowQuiver.set_segments(segments)
         droneScatter._offsets3d = (lat,lon,alt)
-        route.set_data_3d((np.append(xT, vehicle.location.global_relative_frame.lat)),(np.append(yT, vehicle.location.global_relative_frame.lon)),(np.append(zT, vehicle.location.global_relative_frame.alt)))
+        route.set_xdata(list(np.append(xdata,lat)))
+        route.set_ydata(list(np.append(ydata,lon)))
+        route.set_3d_properties((list(np.append(zdata,alt))))
         fig.canvas.draw()
         fig.canvas.draw_idle()
         plt.pause(0.01)
         time.sleep(0.5)
+
+def quiver_data_to_segments(X, Y, Z, u, v, w, length=0.00005):
+    segments = (X, Y, Z, X+v*length, Y+u*length, Z+w*length)
+    segments = np.array(segments).reshape(6,-1)
+    return [[[x, y, z], [u, v, w]] for x, y, z, u, v, w in zip(*list(segments))]
