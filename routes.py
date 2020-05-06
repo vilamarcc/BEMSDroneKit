@@ -278,3 +278,42 @@ def getMultiFacade(sep, bufferD, walls, ori): #ori = [-1, 1], 1 = Outside facade
         return 0,0,0
 
     return xT,yT,zT
+
+def getSquare(sep, bufferD, perimeter):
+    cc1 = perimeter.c1 
+    cc2 = perimeter.c2
+    cc3 = perimeter.c3
+    cc4 = perimeter.c4
+    hmax = perimeter.hmax
+    hmin = perimeter.hmin
+    bufferD = bufferD + 10
+    Center = perimeter.getCenter()
+    brng1 = getBearingBetweenCoordinates(Center[0],Center[1],cc1[0],cc1[1])
+    brng2 = getBearingBetweenCoordinates(Center[0],Center[1],cc2[0],cc2[1])
+    brng3 = getBearingBetweenCoordinates(Center[0],Center[1],cc3[0],cc3[1])
+    brng4 = getBearingBetweenCoordinates(Center[0],Center[1],cc4[0],cc4[1])
+    lat1,lon1 = getLocationAtBearing(cc1[0],cc1[1],bufferD,brng1)
+    lat2,lon2 = getLocationAtBearing(cc2[0],cc2[1],bufferD,brng2)
+    lat3,lon3 = getLocationAtBearing(cc3[0],cc3[1],bufferD,brng3)
+    lat4,lon4 = getLocationAtBearing(cc4[0],cc4[1],bufferD,brng4)
+    n = round(hmax/sep)
+    x = np.tile([lat1,lat2,lat3,lat4,lat1],n)
+    y = np.tile([lon1,lon2,lon3,lon4,lon1],n)
+    z = np.linspace(0,hmax,len(x))
+    i = 0
+    h = 0
+    while i < len(x):
+        z[i] = hmax - sep*h
+        z[i + 1] = hmax - sep*h
+        z[i + 2] = hmax - sep*h
+        z[i + 3] = hmax - sep*h
+        z[i + 4] = hmax - sep*h
+        if(hmax - sep*h < hmin):
+            z[i] = hmin
+            z[i + 1] = hmin
+            z[i + 2] = hmin
+            z[i + 3] = hmin
+            z[i + 4] = hmin
+        i = i + 5
+        h = h + 1
+    return x,y,z
