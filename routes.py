@@ -317,3 +317,26 @@ def getSquare(sep, bufferD, perimeter):
         i = i + 5
         h = h + 1
     return x,y,z
+
+def getMultiSquare(sep, bufferD, ps):
+    ps.sort()
+    xT = []
+    yT = []
+    zT = []
+    i = 0
+    hTrans = (-ps[0].hmax + ps[1].hmin)
+    while i < len(ps):
+        xp,yp,zp = getSquare(sep,bufferD,ps[i])
+        xp = xp[::-1]
+        yp = yp[::-1]
+        zp = zp[::-1]
+        xT.extend(xp)
+        yT.extend(yp)
+        zT.extend(zp)
+        if i < len(ps) - 1:
+            xT.append(xp[-1])
+            yT.append(yp[-1])
+            zT.append(zT[-1] + hTrans)
+            hTrans = ps[i + 1].hmin - ps[i].hmax
+        i = i + 1
+    return xT,yT,zT
