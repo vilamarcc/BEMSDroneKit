@@ -1,6 +1,6 @@
 from dronekit import *
 import math
-from routes import getMultiHelix, getMultiFacade, getHelix, getFacade, getHelixinCoords
+from routes import getMultiHelix, getMultiFacade, getHelix, getFacade, getHelixinCoords,getSquare
 import numpy as np
 
 
@@ -125,3 +125,29 @@ def writeMultiHelixMission(sep,bufferD,bufferH,perimeters,filename):
     file.write(str(i + 3) + " 0 10 20 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0] + 2,2)) + " " + "1\n")
     file.write(str(i + 4) + " 0 10 21 0 0 0 0 0 0 0 1\n")
     file.close()
+
+def writeSimpleSquare(sep,bufferD,perimeter,filename):
+    filename = filename + ".txt"
+    file = open(str(filename), "w")
+    file.write("QGC WPL 110\n")
+    xf,yf,zf = getSquare(sep, bufferD, perimeter)
+    file.write("1 0 3 22 0 0 0 0 0 0 " + str(round(zf[0],2)) + " " + "1\n")
+    file.write("2 0 3 201 0 0 0 0 " + str(perimeter.C[0]) + " " + str(perimeter.C[1]) + " " + str(perimeter.hmax) + " 1\n")
+    i = 0
+    j = 0
+    while (j < len(xf)):
+        file.write(str(i + 3) +  " 0 3 16 0 0 0 0 " + str(xf[j]) + " " + str(yf[j]) + " " + str(round(zf[j],2)) + " " + "1\n")
+        file.write(str(i + 4) +  " 0 3 201 0 0 0 0 " + str(perimeter.C[0]) + " " + str(perimeter.C[1]) + " " + str(round(zf[j],2)) + " " + "1\n")
+        i = i + 2
+        j = j + 1
+    
+    file.write(str(i + 3) +" 0 3 201 0 0 0 0 0 0 0 1\n")
+    file.write(str(i + 4) + " 0 3 16 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    #file.write(str(i + 5) + " 0 3 20 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    #file.write(str(i + 6) + " 0 3 21 0 0 0 0 0 0 0 1\n")
+    file.write(str(i + 5) + " 0 3 16 0 0 0 0 " + str(perimeter.c1[0]) + " " + str(perimeter.c1[1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    file.write(str(i + 6) + " 0 3 16 0 0 0 0 " + str(perimeter.c2[0]) + " " + str(perimeter.c2[1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    file.write(str(i + 7) + " 0 3 16 0 0 0 0 " + str(perimeter.c3[0]) + " " + str(perimeter.c3[1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    file.write(str(i + 8) + " 0 3 16 0 0 0 0 " + str(perimeter.c4[0]) + " " + str(perimeter.c4[1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    file.close()
+    return xf,yf,zf

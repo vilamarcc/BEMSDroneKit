@@ -286,16 +286,22 @@ def getSquare(sep, bufferD, perimeter):
     cc4 = perimeter.c4
     hmax = perimeter.hmax
     hmin = perimeter.hmin
-    bufferD = bufferD + 10
-    Center = perimeter.getCenter()
-    brng1 = getBearingBetweenCoordinates(Center[0],Center[1],cc1[0],cc1[1])
-    brng2 = getBearingBetweenCoordinates(Center[0],Center[1],cc2[0],cc2[1])
-    brng3 = getBearingBetweenCoordinates(Center[0],Center[1],cc3[0],cc3[1])
-    brng4 = getBearingBetweenCoordinates(Center[0],Center[1],cc4[0],cc4[1])
-    lat1,lon1 = getLocationAtBearing(cc1[0],cc1[1],bufferD,brng1)
-    lat2,lon2 = getLocationAtBearing(cc2[0],cc2[1],bufferD,brng2)
-    lat3,lon3 = getLocationAtBearing(cc3[0],cc3[1],bufferD,brng3)
-    lat4,lon4 = getLocationAtBearing(cc4[0],cc4[1],bufferD,brng4)
+    brng1 = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1])
+    brng2 = getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1])
+    brng3 = getBearingBetweenCoordinates(cc3[0],cc3[1],cc4[0],cc4[1])
+    brng4 = getBearingBetweenCoordinates(cc4[0],cc4[1],cc1[0],cc1[1])
+    [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD, brng1)
+    [pLat3,pLon3] = getLocationAtBearing(cc3[0],cc3[1],bufferD*2, brng2)
+    [pLat4,pLon4] = getLocationAtBearing(cc4[0],cc4[1],bufferD, brng3)
+    [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD*2, brng4)
+    [pLat22,pLon22] = getLocationAtBearing(cc2[0],cc2[1],bufferD*2, brng2 + np.pi)
+    [pLat33,pLon33] = getLocationAtBearing(cc3[0],cc3[1],bufferD, brng3 + np.pi)
+    [pLat44,pLon44] = getLocationAtBearing(cc4[0],cc4[1],bufferD*2, brng4 + np.pi)
+    [pLat11,pLon11] = getLocationAtBearing(cc1[0],cc1[1],bufferD, brng1 + np.pi)
+    [lat2,lon2] = getLocationAtBearing(pLat2,pLon2,bufferD,getBearingBetweenCoordinates(pLat2,pLon2,cc2[0],cc2[1]) - np.pi/2)
+    [lat3,lon3] = getLocationAtBearing(pLat3,pLon3,bufferD,getBearingBetweenCoordinates(pLat3,pLon3,cc3[0],cc3[1]) - np.pi/2)
+    [lat4,lon4] = getLocationAtBearing(pLat4,pLon4,bufferD,getBearingBetweenCoordinates(pLat4,pLon4,cc4[0],cc4[1]) - np.pi/2)
+    [lat1,lon1] = getLocationAtBearing(pLat1,pLon1,bufferD,getBearingBetweenCoordinates(pLat1,pLon1,cc1[0],cc1[1]) - np.pi/2)
     n = round(hmax/sep)
     x = np.tile([lat1,lat2,lat3,lat4,lat1],n)
     y = np.tile([lon1,lon2,lon3,lon4,lon1],n)
@@ -316,6 +322,9 @@ def getSquare(sep, bufferD, perimeter):
             z[i + 4] = hmin
         i = i + 5
         h = h + 1
+    x = [pLat11,pLat1,pLat22,pLat2,pLat33,pLat3,pLat44,pLat4]
+    y = [pLon11,pLon1,pLon22,pLon2,pLon33,pLon3,pLon44,pLon4]
+    z = [hmax,hmax,hmax,hmax,hmax,hmax,hmax,hmax]
     return x,y,z
 
 def getMultiSquare(sep, bufferD, ps):
