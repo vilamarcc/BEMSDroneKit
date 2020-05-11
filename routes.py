@@ -63,7 +63,7 @@ def getHelix(sep, bufferD, perimeter):
 
     return xprime,yprime,z,theta
 
-def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters class] #bufferH = security distance between helixes
+def getMultiHelix(sep, bufferD, ps): #ps = [Vector with the perimeters class] #bufferH = security distance between helixes
     ps.sort()
     xT = []
     yT = []
@@ -80,7 +80,6 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
     while(i < len(ps)):
         xT.append(xT[-1])
         yT.append(yT[-1])
-        zT.append(zT[-1] + bufferH)
         tT.append(tT[-1])
         cc1 = ps[i].c1 
         cc2 = ps[i].c2
@@ -92,11 +91,12 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
         bx = ax * np.tan(brngC)
         hmax = ps[i].hmax
         hmin = ps[i].hmin
+        zT.append(hmin)
         wall1 = max(getDistanceBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]), getDistanceBetweenCoordinates(cc3[0],cc3[1],cc4[0],cc4[1]))
         wall2 = max(getDistanceBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]), getDistanceBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1]))
         a = max(wall1,wall2) / 2
         b = min(wall2,wall1) / 2
-        n = ((hmax - ps[i - 1].hmax) / sep)
+        n = ((hmax - hmin) / sep)
         c = (hmax - (hmin) ) / (2 * np.pi * n)
         alpha = np.arctan2(b,a)
         rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))
@@ -105,7 +105,7 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
         if(max(wall1, wall2) == wall1):
             brng = (np.pi / 2) - (getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + getBearingBetweenCoordinates(cc4[0],cc4[1],cc3[0],cc3[1])) / 2 
             theta = np.linspace(-brng, -brng + np.pi * n * 2 , 100)
-            z = (c * theta) + hmin + bufferH #altitude in m 
+            z = (c * theta) + hmin #altitude in m 
             x = (a + rextra) * np.cos(theta) 
             y = (b + rextra) * np.sin(theta) 
             xprime = x*np.cos(brng) - y*np.sin(brng) + ax #longitude
@@ -113,7 +113,7 @@ def getMultiHelix(sep, bufferD, bufferH, ps): #ps = [Vector with the perimeters 
         else:
             brng =  - (getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) + getBearingBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1])) / 2
             theta = np.linspace(-brng, -brng + np.pi * n * 2 , 100)
-            z = (c * theta) + hmin + bufferH #altitude in m 
+            z = (c * theta) + hmin #altitude in m 
             y = (a + rextra) * np.cos(theta) 
             x = (b + rextra) * np.sin(theta)
             xprime = x*np.cos(brng) - y*np.sin(brng) - ax #latitude
@@ -409,3 +409,77 @@ def getElipse(sep,bufferD,perimeter):
         i = i + 1
 
     return xT,yT,z
+
+def getMultiElipse(sep,bufferD,ps):
+    ps.sort()
+    xT = []
+    yT = []
+    zT = [] 
+    i = 1
+    Center = ps[0].C
+    #We calculate the first helix of the lowest perimeter
+    xp1,yp1,zp1 = getElipse(sep,bufferD,ps[0])
+    xT.extend(xp1)
+    yT.extend(yp1)
+    zT.extend(zp1[::-1])
+    while(i < len(ps)):
+        xT.append(xT[-1])
+        yT.append(yT[-1])
+        xL = []
+        yL = []
+        cc1 = ps[i].c1 
+        cc2 = ps[i].c2
+        cc3 = ps[i].c3
+        cc4 = ps[i].c4
+        dc = getDistanceBetweenCoordinates(Center[0],Center[1],ps[i].C[0],ps[i].C[1])
+        brngC = getBearingBetweenCoordinates(Center[0],Center[1],ps[i].C[0],ps[i].C[1]) + np.pi / 2
+        ax = np.sqrt((dc**2)/((np.tan(brngC))**2 + 1))
+        bx = ax * np.tan(brngC)
+        hmax = ps[i].hmax
+        hmin = ps[i].hmin
+        zT.append(hmin)
+        wall1 = max(getDistanceBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]), getDistanceBetweenCoordinates(cc3[0],cc3[1],cc4[0],cc4[1]))
+        wall2 = max(getDistanceBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]), getDistanceBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1]))
+        a = max(wall1,wall2) / 2
+        b = min(wall2,wall1) / 2
+        n = round((hmax - hmin) / sep)
+        alpha = np.arctan2(b,a)
+        rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))
+        rmax = np.sqrt(a**2 + b**2)
+        rextra = (rmax - rr) + bufferD
+        if(max(wall1, wall2) == wall1):
+            brng = (np.pi / 2) - (getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + getBearingBetweenCoordinates(cc4[0],cc4[1],cc3[0],cc3[1])) / 2 
+            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 25)
+            x = (a + rextra) * np.cos(theta) 
+            y = (b + rextra) * np.sin(theta) 
+            xprime = x*np.cos(brng) - y*np.sin(brng) + ax #longitude
+            yprime = x*np.sin(brng) + y*np.cos(brng) + bx #latitude
+        else:
+            brng =  - (getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) + getBearingBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1])) / 2
+            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 25)
+            y = (a + rextra) * np.cos(theta) 
+            x = (b + rextra) * np.sin(theta)
+            xprime = x*np.cos(brng) - y*np.sin(brng) - ax #latitude
+            yprime = x*np.sin(brng) + y*np.cos(brng) + bx #longitude
+        
+        z = np.zeros(len(xprime)*(n + 1))
+        i = 0
+        h = 0
+        xL.extend(xprime)
+        yL.extend(yprime)
+        while i < len(z):
+            if(i == (h+1)*25):
+                xL.extend(xprime)
+                yL.extend(yprime)
+                h = h + 1
+            if(hmax - sep*h < hmin):
+                z[i] = hmin
+            z[i] = hmax - sep*h
+            i = i + 1
+        
+        xT.extend(xL)
+        yT.extend(yL)
+        zT.extend(z[::-1])
+        i = i + 1
+
+    return xT,yT,zT
