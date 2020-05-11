@@ -358,3 +358,54 @@ def getMultiSquare(sep, bufferD, ps):
             hTrans = ps[i + 1].hmin - ps[i].hmax
         i = i + 1
     return xT,yT,zT
+
+def getElipse(sep,bufferD,perimeter):
+    cc1 = perimeter.c1 
+    cc2 = perimeter.c2
+    cc3 = perimeter.c3
+    cc4 = perimeter.c4
+    xT = []
+    yT = []
+    hmax = perimeter.hmax
+    hmin = perimeter.hmin
+    wall1 = max(getDistanceBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]), getDistanceBetweenCoordinates(cc3[0],cc3[1],cc4[0],cc4[1]))
+    wall2 = max(getDistanceBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]), getDistanceBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1]))
+    a = max(wall1,wall2) / 2
+    b = min(wall2,wall1) / 2
+    n = round((hmax - hmin) / sep)
+    theta = np.linspace(0, np.pi * 2 , 25)
+    alpha = np.arctan2(b,a)
+    rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))
+    rmax = np.sqrt(a**2 + b**2)
+    rextra = (rmax - rr) + bufferD
+    if(max(wall1, wall2) == wall1):
+        brng = (np.pi / 2) - (getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + getBearingBetweenCoordinates(cc4[0],cc4[1],cc3[0],cc3[1])) / 2 
+        x = (a + rextra) * np.cos(theta) 
+        y = (b + rextra) * np.sin(theta) 
+        xprime = x*np.cos(brng) - y*np.sin(brng)
+        yprime = x*np.sin(brng) + y*np.cos(brng)
+        xT.extend(xprime)
+        yT.extend(yprime)
+    else:
+        brng =  - (getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) + getBearingBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1])) / 2
+        y = (a + rextra) * np.cos(theta) 
+        x = (b + rextra) * np.sin(theta)
+        xprime = x*np.cos(brng) - y*np.sin(brng)
+        yprime = x*np.sin(brng) + y*np.cos(brng)
+        xT.extend(xprime)
+        yT.extend(yprime)
+    
+    z = np.zeros(len(xprime)*(n+ 1))
+    i = 0
+    h = 0
+    while i < len(z):
+        if(i == (h+1)*25):
+            xT.extend(xprime)
+            yT.extend(yprime)
+            h = h + 1
+        if(hmax - sep*h < hmin):
+            z[i] = hmin
+        z[i] = hmax - sep*h
+        i = i + 1
+
+    return xT,yT,z
