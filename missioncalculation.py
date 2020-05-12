@@ -38,16 +38,18 @@ def writeSimpleFacadeMission(sep, bufferD, wall, ori, filename):
     x,y,z = getFacade(sep,bufferD,wall,ori)
     brng = wall.getBearing()
     j = 0
+    i = 1
     poi = round((brng  - (np.pi/2)*ori)*(180/np.pi),3)
     if(poi < 0):
         poi = poi + 360
     file.write("0 1 0 22 0 0 0 0 0 0 " + str(round(z[0],2)) + " " + "1\n")
     file.write("1 0 10 16 0 0 0 0 " + str(x[0]) + " " + str(y[0]) + " " + str(round(z[j],2)) + " " + "1\n")
     file.write("2 0 0 115 " + str(poi) + " 0 " + str(1) + " 0 0 0 0 1\n")
-    while (j < len(x)):
-        file.write(str(j + 3) + " 0 10 16 0 0 0 0 " + str(x[j]) + " " + str(y[j]) + " " + str(round(z[j],2)) + " " + "1\n")
+    while (i < len(x)):
+        file.write(str(j + 3) + " 0 10 16 0 0 0 0 " + str(x[i]) + " " + str(y[i]) + " " + str(round(z[i],2)) + " " + "1\n")
         file.write(str(j + 4) + " 0 0 115 " + str(poi) + " 0 " + str(1) + " 0 0 0 0 1\n")
         j = j + 2
+        i = i + 1
 
     file.write(str(len(x) + 2) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
     file.write(str(len(x) + 3) + " 0 10 20 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
@@ -110,13 +112,13 @@ def writeMultiHelixMission(sep,bufferD,perimeters,filename):
     while (j < len(xf)):
         file.write(str(i + 3) +  " 0 10 82 0 0 0 0 " + str(xf[j]) + " " + str(yf[j]) + " " + str(round(zf[j],2)) + " " + "1\n")
         file.write(str(i + 4) +  " 0 10 201 0 0 0 0 " + str(perimeter.C[0]) + " " + str(perimeter.C[1]) + " " + str(round(zf[j],2)) + " " + "1\n")
-        i = i + 1
+        i = i + 2
         if(j == 99*h):
             file.write(str(i + 2) +  " 0 10 16 0 0 0 0 " + str(xf[j + 1]) + " " + str(yf[j + 1]) + " " + str(round(zf[j + 1],2)) + " " + "1\n")
             file.write(str(i + 3) +  " 0 10 16 0 0 0 0 " + str(xf[j + 2]) + " " + str(yf[j + 2]) + " " + str(round(zf[j + 2],2)) + " " + "1\n")
             perimeter = perimeters[h]
             h = h + 1
-            i = i + 1
+            i = i + 2
             j = j + 1
 
         j = j + 1
@@ -143,12 +145,8 @@ def writeSimpleSquare(sep,bufferD,perimeter,filename):
     
     file.write(str(i + 3) +" 0 3 201 0 0 0 0 0 0 0 1\n")
     file.write(str(i + 4) + " 0 3 16 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
-    #file.write(str(i + 5) + " 0 3 20 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
-    #file.write(str(i + 6) + " 0 3 21 0 0 0 0 0 0 0 1\n")
-    file.write(str(i + 5) + " 0 3 16 0 0 0 0 " + str(perimeter.c1[0]) + " " + str(perimeter.c1[1]) + " " + str(round(zf[0],2)) + " " + "1\n")
-    file.write(str(i + 6) + " 0 3 16 0 0 0 0 " + str(perimeter.c2[0]) + " " + str(perimeter.c2[1]) + " " + str(round(zf[0],2)) + " " + "1\n")
-    file.write(str(i + 7) + " 0 3 16 0 0 0 0 " + str(perimeter.c3[0]) + " " + str(perimeter.c3[1]) + " " + str(round(zf[0],2)) + " " + "1\n")
-    file.write(str(i + 8) + " 0 3 16 0 0 0 0 " + str(perimeter.c4[0]) + " " + str(perimeter.c4[1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    file.write(str(i + 5) + " 0 3 20 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    file.write(str(i + 6) + " 0 3 21 0 0 0 0 0 0 0 1\n")
     file.close()
     return xf,yf,zf
 
@@ -160,14 +158,17 @@ def writeMultiElipse(sep,bufferD,perimeters,filename):
     perimeters.sort()
     C = perimeters[0].C
     xf,yf,zf = getHelixinCoords(x,y,z,C)
-    perimeter = perimeters[0]
+    xf = xf[::-1]
+    yf = yf[::-1]
+    zf = zf[::-1]
+    perimeter = perimeters[-1]
     file.write("0 1 0 22 0 0 0 0 0 0 " + str(round(zf[0],2)) + " " + "1\n")
     file.write("1 0 10 22 0 0 0 0 0 0 " + str(round(zf[0],2)) + " " + "1\n")
     file.write("2 0 10 201 0 0 0 0 " + str(perimeter.C[0]) + " " + str(perimeter.C[1]) + " " + str(perimeter.hmax) + " 1\n")
     n = round((perimeters[0].hmax - perimeters[0].hmin)/sep)
     i = 0
     j = 0
-    h = 1
+    h = len(perimeters)
     while (j < len(xf)):
         file.write(str(i + 3) +  " 0 10 82 0 0 0 0 " + str(xf[j]) + " " + str(yf[j]) + " " + str(round(zf[j],2)) + " " + "1\n")
         file.write(str(i + 4) +  " 0 10 201 0 0 0 0 " + str(perimeter.C[0]) + " " + str(perimeter.C[1]) + " " + str(round(zf[j],2)) + " " + "1\n")
@@ -175,15 +176,15 @@ def writeMultiElipse(sep,bufferD,perimeters,filename):
         if(j == 25*h*(n + 1) + 1):
             file.write(str(i + 2) +  " 0 10 16 0 0 0 0 " + str(xf[j + 1]) + " " + str(yf[j + 1]) + " " + str(round(zf[j + 1],2)) + " " + "1\n")
             file.write(str(i + 3) +  " 0 10 16 0 0 0 0 " + str(xf[j + 2]) + " " + str(yf[j + 2]) + " " + str(round(zf[j + 2],2)) + " " + "1\n")
-            #perimeter = perimeters[h]
-            #n = round((perimeters[h].hmax - perimeters[h].hmin)/sep)
-            h = h + 1
+            perimeter = perimeters[h]
+            n = round((perimeters[h].hmax - perimeters[h].hmin)/sep)
+            h = h - 1
             i = i + 2
             j = j + 1
 
         j = j + 1
 
-    file.write(str(i + 2) + " 0 10 16 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0] + 2,2)) + " " + "1\n")
-    file.write(str(i + 3) + " 0 10 20 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0] + 2,2)) + " " + "1\n")
+    file.write(str(i + 2) + " 0 10 16 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
+    file.write(str(i + 3) + " 0 10 20 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
     file.write(str(i + 4) + " 0 10 21 0 0 0 0 0 0 0 1\n")
     file.close()

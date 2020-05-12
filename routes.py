@@ -172,9 +172,15 @@ def getMultiFacade(sep, bufferD, walls, ori): #ori = [-1, 1], 1 = Outside facade
             cc2 = walls[i].c2
             hmax = walls[i].hmax
             hmin = walls[i].hmin
+            fix = 2
+            brngfix = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1])
+            if(brngfix < 0):
+                brngfix = brngfix + np.pi*2
+            if((brngfix > np.pi/4 and brngfix < np.pi*0.75) or (brngfix - np.pi > np.pi/4 and brngfix - np.pi < np.pi*0.75)):
+                fix = 1
             brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + (np.pi) / 2
-            [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD, brng)
-            [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD, brng)
+            [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD*fix, brng)
+            [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD*fix, brng)
             n = round(hmax/sep)
             if (i + 1) % 2 == 0:
                 x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
@@ -224,10 +230,16 @@ def getMultiFacade(sep, bufferD, walls, ori): #ori = [-1, 1], 1 = Outside facade
             cc2 = walls[i].c2
             hmax = walls[i].hmax
             hmin = walls[i].hmin
+            fix = 2
+            brngfix = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1])
+            if(brngfix < 0):
+                brngfix = brngfix + np.pi*2
+            if((brngfix > np.pi/4 and brngfix < np.pi*0.75) or (brngfix - np.pi > np.pi/4 and brngfix - np.pi < np.pi*0.75)):
+                fix = 1
             brngprime1 = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1])
             brngprime2 = getBearingBetweenCoordinates(cc2[0],cc2[1],cc1[0],cc1[1])
-            Lat1p,Lon1p = getLocationAtBearing(cc1[0],cc1[1],bufferD/2,brngprime1)
-            Lat2p,Lon2p = getLocationAtBearing(cc2[0],cc2[1],bufferD/2,brngprime2)
+            Lat1p,Lon1p = getLocationAtBearing(cc1[0],cc1[1],bufferD*fix,brngprime1)
+            Lat2p,Lon2p = getLocationAtBearing(cc2[0],cc2[1],bufferD*fix,brngprime2)
             brng = getBearingBetweenCoordinates(Lat1p,Lon1p,Lat2p,Lon2p) - (np.pi) / 2
             [pLat1,pLon1] = getLocationAtBearing(Lat1p,Lon1p,bufferD, brng)
             [pLat2,pLon2] = getLocationAtBearing(Lat2p,Lon2p,bufferD, brng)
@@ -449,14 +461,14 @@ def getMultiElipse(sep,bufferD,ps):
         rextra = (rmax - rr) + bufferD
         if(max(wall1, wall2) == wall1):
             brng = (np.pi / 2) - (getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + getBearingBetweenCoordinates(cc4[0],cc4[1],cc3[0],cc3[1])) / 2 
-            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 25)
+            theta = np.linspace(-brng, -brng + np.pi * 2 , 25)
             x = (a + rextra) * np.cos(theta) 
             y = (b + rextra) * np.sin(theta) 
             xprime = x*np.cos(brng) - y*np.sin(brng) + ax #longitude
             yprime = x*np.sin(brng) + y*np.cos(brng) + bx #latitude
         else:
             brng =  - (getBearingBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]) + getBearingBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1])) / 2
-            theta = np.linspace(-brng, -brng + np.pi * n * 2 , 25)
+            theta = np.linspace(-brng, -brng + np.pi * 2 , 25)
             y = (a + rextra) * np.cos(theta) 
             x = (b + rextra) * np.sin(theta)
             xprime = x*np.cos(brng) - y*np.sin(brng) - ax #latitude
