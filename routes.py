@@ -28,6 +28,29 @@ class wall:
     def getBearing(self):
         return getBearingBetweenCoordinates(self.c1[0],self.c1[1],self.c2[0],self.c2[1])
 
+class polygon:
+    def __init__ (self,cn,hma,hmi):
+        self.ccn = cn
+        self.hmax = hma
+        self.hmin = hmi
+        self.C = self.getCenter()
+    def getCenter(self):
+        i = 0
+        latT = 0
+        lonT = 0
+        while(i < len(self.ccn)):
+            latT = latT + self.ccn[i][0]
+            lonT = lonT + self.ccn[i][1]
+            i = i + 1
+        
+        cLat = latT/4
+        cLon = lonT/4
+
+        C = [cLat,cLon]
+        return C
+    def __lt__(self, other):
+        return self.hmax < other.hmax
+
 def getHelix(sep, bufferD, perimeter): 
 
     cc1 = perimeter.c1 
@@ -40,7 +63,7 @@ def getHelix(sep, bufferD, perimeter):
     wall2 = max(getDistanceBetweenCoordinates(cc2[0],cc2[1],cc3[0],cc3[1]), getDistanceBetweenCoordinates(cc1[0],cc1[1],cc4[0],cc4[1]))
     a = max(wall1,wall2) / 2
     b = min(wall2,wall1) / 2
-    n = (hmax / sep)
+    n = ((hmax - hmin) / sep)
     c = (hmax - hmin) / (2 * np.pi * n)
     theta = np.linspace(0, np.pi * n * 2 , 150)
     z = (c * theta) + hmin #altitude in m 
@@ -145,7 +168,7 @@ def getFacade(sep, bufferD, wall, ori): #ori = Orientation of the wall towards o
     brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + ori*np.pi / 2
     [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD, brng)
     [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD, brng)
-    n = round(hmax/sep)
+    n = round((hmax- hmin)/sep)
     x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
     y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
     z = np.linspace(0,hmax,len(x))
@@ -181,7 +204,7 @@ def getMultiFacade(sep, bufferD, walls, ori): #ori = [-1, 1], 1 = Outside facade
             brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + (np.pi) / 2
             [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD*fix, brng)
             [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD*fix, brng)
-            n = round(hmax/sep)
+            n = round((hmax - hmin)/sep)
             if (i + 1) % 2 == 0:
                 x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
                 y = np.tile([pLon1,pLon2,pLon2,pLon1],math.ceil(n/2))
@@ -318,7 +341,7 @@ def getSquare(sep, bufferD, perimeter):
     [pLat33,pLon33] = getLocationAtBearing(cc3[0],cc3[1],bufferD*fix2, brng3 + np.pi)
     [pLat44,pLon44] = getLocationAtBearing(cc4[0],cc4[1],bufferD*fix1, brng4 + np.pi)
     [pLat11,pLon11] = getLocationAtBearing(cc1[0],cc1[1],bufferD*fix2, brng1 + np.pi)
-    n = round(hmax/sep)
+    n = round((hmax - hmin)/sep) + 1
     x = np.tile([pLat11,pLat1,pLat22,pLat2,pLat33,pLat3,pLat44,pLat4,pLat11],n)
     y = np.tile([pLon11,pLon1,pLon22,pLon2,pLon33,pLon3,pLon44,pLon4,pLon11],n)
     z = np.linspace(0,hmax,len(x))
@@ -497,3 +520,63 @@ def getMultiElipse(sep,bufferD,ps):
         i = i + 1
 
     return xT,yT,zT
+
+def getPolySquare(sep,bufferD,poly):
+
+    i = 0
+    Lats = []
+    Lons = []
+    z = []
+    hmax = poly.hmax
+    hmin = poly.hmin
+    n = round((hmax-hmin)/sep) + 1
+    while i < len(poly.ccn):
+        cc0 = poly.ccn[i]
+        if(i + 1 >= len(poly.ccn)):
+            ccpost = poly.ccn[0]
+        else:
+            ccpost = poly.ccn[i + 1]
+        if(i - 1 < 0):
+            ccpre = poly.ccn[-1]
+        else:
+            ccpre = poly.ccn[i - 1]
+
+        brngpre = getBearingBetweenCoordinates(ccpre[0],ccpre[1],cc0[0],cc0[1])
+        brngpost = getBearingBetweenCoordinates(ccpost[0],ccpost[1],cc0[0],cc0[1])
+
+        fix1,fix2 = 1,1
+        brngfix = brngpost
+        if(brngfix < 0):
+            brngfix = brngfix + np.pi*2
+        if(brngfix > np.pi/2 and brngfix < np.pi*1.5):
+            fix1 = 2
+        else:
+            fix2 = 2
+        [pLatn,pLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD, brngpre)
+        [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD, brngpost)
+        Lats.append(cLatn)
+        Lats.append(pLatn)
+        Lons.append(cLonn)
+        Lons.append(pLonn)
+
+        i = i + 1
+    
+    Lats.append(Lats[0])
+    Lons.append(Lons[0])
+
+    x = np.tile(Lats,n)
+    y = np.tile(Lons,n)
+    z = np.linspace(0,0,len(x))
+
+    j = 0
+    h = 0
+    cornercount = len(poly.ccn)*2 + 1
+    while (j < len(z)):
+        if(hmax - sep*h >= hmin):
+            z[j:cornercount*(h + 1)] = hmax - sep*h
+        else:
+            z[j:cornercount*(h + 1)] = hmin
+        h = h + 1
+        j = j + cornercount
+    
+    return x,y,z
