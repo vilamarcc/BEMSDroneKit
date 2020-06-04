@@ -42,7 +42,7 @@ def getHelix(sep, bufferD, perimeter):
     b = min(wall2,wall1) / 2
     n = (hmax / sep)
     c = (hmax - hmin) / (2 * np.pi * n)
-    theta = np.linspace(0, np.pi * n * 2 , 100)
+    theta = np.linspace(0, np.pi * n * 2 , 150)
     z = (c * theta) + hmin #altitude in m 
     alpha = np.arctan2(b,a)
     rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))
@@ -435,6 +435,7 @@ def getMultiElipse(sep,bufferD,ps):
     yT.extend(yp1)
     zT.extend(zp1[::-1])
     while(i < len(ps)):
+
         xT.append(xT[-1])
         yT.append(yT[-1])
         xL = []
@@ -475,23 +476,24 @@ def getMultiElipse(sep,bufferD,ps):
             yprime = x*np.sin(brng) + y*np.cos(brng) + bx #longitude
         
         z = np.zeros(len(xprime)*(n + 1))
-        i = 0
+        j = 0
         h = 0
         xL.extend(xprime)
         yL.extend(yprime)
-        while i < len(z):
-            if(i == (h+1)*25):
+        while j < len(z):
+            if(j == (h+1)*25):
                 xL.extend(xprime)
                 yL.extend(yprime)
                 h = h + 1
             if(hmax - sep*h < hmin):
-                z[i] = hmin
-            z[i] = hmax - sep*h
-            i = i + 1
+                z[j] = hmin
+            z[j] = hmax - sep*h
+            j = j + 1
         
         xT.extend(xL)
         yT.extend(yL)
         zT.extend(z[::-1])
+
         i = i + 1
 
     return xT,yT,zT

@@ -108,10 +108,10 @@ def plotPreviewSimpleFacade(x,y,z,wall,n,home):
     xT.extend(x)
     yT.extend(y)
     zT.extend(z)
-    ax.scatter(cc1[0],cc1[1],hmax, color = "b")
-    ax.scatter(cc2[0],cc2[1],hmax, color = "b")
-    ax.scatter(cc1[0],cc1[1],0, color = "b")
-    ax.scatter(cc2[0],cc2[1],0, color = "b")
+    ax.scatter(cc1[0],cc1[1],hmax, color = "k",label = "Corners")
+    ax.scatter(cc2[0],cc2[1],hmax, color = "k")
+    ax.scatter(cc1[0],cc1[1],0, color = "k")
+    ax.scatter(cc2[0],cc2[1],0, color = "k")
     ax.scatter(home.lat,home.lon,color = "r", label = "Home")
     i = 0
     ccs = [cc1,cc2]
@@ -120,12 +120,12 @@ def plotPreviewSimpleFacade(x,y,z,wall,n,home):
         linex = [cc[0],cc[0]]
         liney = [cc[1],cc[1]]
         linez = [0,hmax]
-        ax.plot(linex,liney,linez)
+        ax.plot(linex,liney,linez,color = "b")
         i = i + 1
     basex = [cc1[0],cc2[0]]
     basey = [cc1[1],cc2[1]]
-    ax.plot(basex,basey,hmax,color = "b",label = "Hmax")
-    ax.plot(basex,basey,0,color = "c")
+    ax.plot(basex,basey,hmax,color = "r",label = "Hmax")
+    ax.plot(basex,basey,0,color = "b")
     ax.plot(basex,basey,hmin,color = "g",label = "Hmin")
     xT.insert(0,home.lat)
     yT.insert(0,home.lon)
@@ -166,10 +166,10 @@ def plotPreviewMultiFacade(x,y,z,walls,n,home):
     while i < len(walls):
         cc1 = walls[i].c1
         cc2 = walls[i].c2
-        ax.scatter(cc1[0],cc1[1],hmax, color = "b")
-        ax.scatter(cc2[0],cc2[1],hmax, color = "b")
-        ax.scatter(cc1[0],cc1[1],0, color = "b")
-        ax.scatter(cc2[0],cc2[1],0, color = "b")
+        ax.scatter(cc1[0],cc1[1],hmax, color = "k")
+        ax.scatter(cc2[0],cc2[1],hmax, color = "k")
+        ax.scatter(cc1[0],cc1[1],0, color = "k")
+        ax.scatter(cc2[0],cc2[1],0, color = "k")
         basex.append(cc1[0])
         basey.append(cc1[1])
         i = i + 1
@@ -177,8 +177,8 @@ def plotPreviewMultiFacade(x,y,z,walls,n,home):
             basex.append(cc2[0])
             basey.append(cc2[1])
     
-    ax.plot(basex,basey,hmax, color = "b")
-    ax.plot(basex,basey,hmin, color = "b")
+    ax.plot(basex,basey,hmax, color = "r", label = "Hmax")
+    ax.plot(basex,basey,hmin, color = "g", label = "Hmin")
 
     ax.scatter(home.lat,home.lon,color = "r", label = "Home")
     i = 0
@@ -187,9 +187,13 @@ def plotPreviewMultiFacade(x,y,z,walls,n,home):
         linex = [cc[0],cc[0]]
         liney = [cc[1],cc[1]]
         linez = [0,hmax]
-        ax.plot(linex,liney,linez)
+        ax.plot(linex,liney,linez, color = "b")
         i = i + 1
-
+    
+    linex = [walls[i-1].c2[0],walls[i-1].c2[0]]
+    liney = [walls[i-1].c2[1],walls[i-1].c2[1]]
+    linez = [0, hmax]
+    ax.plot(linex,liney,linez, color = "b")
     xT.insert(0,home.lat)
     yT.insert(0,home.lon)
     zT.insert(0,hmax)
@@ -276,3 +280,52 @@ def quiver_data_to_segments(X, Y, Z, u, v, w, length=0.00005):
     segments = (X, Y, Z, X+v*length, Y+u*length, Z+w*length)
     segments = np.array(segments).reshape(6,-1)
     return [[[x, y, z], [u, v, w]] for x, y, z, u, v, w in zip(*list(segments))]
+
+def plotPreviewMultiPerimeter(x,y,z,perimeters,n,home):
+    fig = plt.figure(n)
+    ax = fig.gca(projection='3d')
+    i = 0
+    hmax = 0
+    htrans = 0
+    perimeters.sort()
+    while (i < len(perimeters)):
+        perimeter = perimeters[i]
+        cc1 = perimeter.c1
+        cc2 = perimeter.c2
+        cc3 = perimeter.c3
+        cc4 = perimeter.c4
+        hmax = perimeter.hmax
+        hmin = perimeter.hmin
+        namePC = "P" + str(i + 1) + " coordenates"
+        colori = [(0.3*i,0.3*i,0.3*(i))]
+        ax.scatter(cc1[0],cc1[1],hmax, color = colori, label = namePC)
+        ax.scatter(cc2[0],cc2[1],hmax, color = colori)
+        ax.scatter(cc3[0],cc3[1],hmax, color = colori)
+        ax.scatter(cc4[0],cc4[1],hmax, color = colori)
+        basex = [cc1[0],cc2[0],cc3[0],cc4[0],cc1[0]]
+        basey = [cc1[1],cc2[1],cc3[1],cc4[1],cc1[1]]
+        h = 0
+        ccn = [cc1,cc2,cc3,cc4]
+        if(i >= 1):
+            htrans = perimeters[i - 1].hmax
+        else:
+            htrans = 0
+
+        while h < 4:
+            cc = ccn[h]
+            linex = [cc[0],cc[0]]
+            liney = [cc[1],cc[1]]
+            linez = [htrans,hmax]
+            ax.plot(linex,liney,linez,color = "b")
+            h = h + 1
+        
+        ax.plot(basex,basey,hmax, color = "r")
+        ax.plot(basex,basey,hmin, color = "g")
+        ax.plot(basex,basey,htrans, color = "b")
+
+        i = i + 1
+    ax.plot(x,y,z,color = "#ffb458", label = "Route")
+    ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
+    ax.legend()
+    set_axes_equal(ax,hmax)
+    plt.show()
