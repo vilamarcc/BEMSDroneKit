@@ -43,8 +43,8 @@ class polygon:
             lonT = lonT + self.ccn[i][1]
             i = i + 1
         
-        cLat = latT/4
-        cLon = lonT/4
+        cLat = latT/len(self.ccn)
+        cLon = lonT/len(self.ccn)
 
         C = [cLat,cLon]
         return C
@@ -543,20 +543,15 @@ def getPolySquare(sep,bufferD,poly):
 
         brngpre = getBearingBetweenCoordinates(ccpre[0],ccpre[1],cc0[0],cc0[1])
         brngpost = getBearingBetweenCoordinates(ccpost[0],ccpost[1],cc0[0],cc0[1])
+        brngav = (brngpre + brngpost)/2
 
-        fix1,fix2 = 1,1
-        brngfix = brngpost
-        if(brngfix < 0):
-            brngfix = brngfix + np.pi*2
-        if(brngfix > np.pi/2 and brngfix < np.pi*1.5):
-            fix1 = 2
-        else:
-            fix2 = 2
-        [pLatn,pLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD, brngpre)
-        [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD, brngpost)
-        Lats.append(cLatn)
+        [pLatn,pLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD, brngav)
+        P = [pLatn,pLonn]
+        inside = checkIfInsidePoly(P,poly)
+        if(inside == True):
+            [pLatn,pLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD, brngav + np.pi)
+
         Lats.append(pLatn)
-        Lons.append(cLonn)
         Lons.append(pLonn)
 
         i = i + 1
@@ -570,7 +565,7 @@ def getPolySquare(sep,bufferD,poly):
 
     j = 0
     h = 0
-    cornercount = len(poly.ccn)*2 + 1
+    cornercount = len(poly.ccn) + 1
     while (j < len(z)):
         if(hmax - sep*h >= hmin):
             z[j:cornercount*(h + 1)] = hmax - sep*h
@@ -580,3 +575,23 @@ def getPolySquare(sep,bufferD,poly):
         j = j + cornercount
     
     return x,y,z
+
+def checkIfInsidePoly(P,poly):
+    lat = P[0]
+    lon = P[1]
+    n = len(poly.ccn)
+    inside = False
+
+    p1x,p1y = poly.ccn[0]
+    for i in range(n+1):
+        p2x,p2y = poly.ccn[i % n]
+        if lon > min(p1y,p2y):
+            if lon <= max(p1y,p2y):
+                if lat <= max(p1x,p2x):
+                    if p1y != p2y:
+                        xints = (lon-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
+                    if p1x == p2x or lat <= xints:
+                        inside = not inside
+        p1x,p1y = p2x,p2y
+
+    return inside
