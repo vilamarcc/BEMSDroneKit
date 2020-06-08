@@ -329,3 +329,32 @@ def plotPreviewMultiPerimeter(x,y,z,perimeters,n,home):
     ax.legend()
     set_axes_equal(ax,hmax)
     plt.show()
+
+def plotPreviewPolygon(x,y,z,poly,n,home):
+
+    fig = plt.figure(n)
+    ax = fig.gca(projection='3d')
+    i = 0
+    hmax = poly.hmax
+    hmin = poly.hmin
+    basex = []
+    basey = []
+    while (i < len(poly.ccn)):
+        [nLat,nLon] = poly.ccn[i]
+        basex.append(nLat)
+        basey.append(nLon)
+        ax.scatter(nLat,nLon,hmax, color = "k")
+        ax.plot([nLat,nLat],[nLon,nLon],[0,hmax],color = "b")
+
+        i = i + 1
+    
+    basex.append(basex[0])
+    basey.append(basey[0])
+    ax.plot(basex,basey,0,color = "b")
+    ax.plot(basex,basey,hmax,color = "r",label = "Hmax")
+    ax.plot(basex,basey,hmin,color = "g",label = "Hmin")
+    ax.plot(x,y,z,color = "#ffb458", label = "Route")
+    ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
+    ax.legend()
+    set_axes_equal(ax,hmax)
+    plt.show()
