@@ -190,9 +190,15 @@ def getMultiFacade(sep, bufferD, walls, ori): #ori = [-1, 1], 1 = Outside facade
     yT = []
     zT = []
     if(ori == 1):
+        isnextconvex = False
         while (i < len(walls)):
             cc1 = walls[i].c1
             cc2 = walls[i].c2
+            if(i + 1 >= len(walls)):
+                wallpost = 0
+            else:
+                wallpost = walls[i + 1]
+                
             hmax = walls[i].hmax
             hmin = walls[i].hmin
             fix = 2
@@ -201,9 +207,17 @@ def getMultiFacade(sep, bufferD, walls, ori): #ori = [-1, 1], 1 = Outside facade
                 brngfix = brngfix + np.pi*2
             if((brngfix > np.pi/4 and brngfix < np.pi*0.75) or (brngfix - np.pi > np.pi/4 and brngfix - np.pi < np.pi*0.75)):
                 fix = 1
-            brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1]) + (np.pi) / 2
-            [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD*fix, brng)
-            [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD*fix, brng)
+            brng = getBearingBetweenCoordinates(cc1[0],cc1[1],cc2[0],cc2[1])
+            [pLat1,pLon1] = getLocationAtBearing(cc1[0],cc1[1],bufferD*fix, brng + (np.pi) / 2)
+            [pLat2,pLon2] = getLocationAtBearing(cc2[0],cc2[1],bufferD*fix, brng + (np.pi) / 2)
+            if(isnextconvex == True):
+                [pLat1,pLon1] = getLocationAtBearing(pLat1,pLon1,bufferD, brng)
+                isnextconvex = False
+            if(convex(walls[i],wallpost) == True and wallpost != 0):
+                [pLat2,pLon2] = getLocationAtBearing(pLat2,pLon2, bufferD*fix, brng - np.pi)
+                isnextconvex = True
+            
+
             n = round((hmax - hmin)/sep)
             if (i + 1) % 2 == 0:
                 x = np.tile([pLat1,pLat2,pLat2,pLat1],math.ceil(n/2))
@@ -595,3 +609,24 @@ def checkIfInsidePoly(P,poly):
         p1x,p1y = p2x,p2y
 
     return inside
+
+def convex(w1,w2):
+    if(w2 == 0):
+        return False
+    [x1,y1] = w1.c1
+    [x2,y2] = w1.c2
+    [x3,y3] = w2.c2
+
+    def area(x1,y1,x2,y2,x3,y3):
+
+        areaSum = 0
+
+        areaSum = areaSum + x1 * (y3 - y2)
+        areaSum = areaSum + x2 * (y1 - y3)
+        areaSum = areaSum + x3 * (y2 - y1)
+        return areaSum
+
+    if (area(x1, y1, x2, y2, x3, y3) < 0):
+        return True
+    else:
+        return False

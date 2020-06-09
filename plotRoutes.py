@@ -343,7 +343,7 @@ def plotPreviewPolygon(x,y,z,poly,n,home):
         [nLat,nLon] = poly.ccn[i]
         basex.append(nLat)
         basey.append(nLon)
-        ax.scatter(nLat,nLon,hmax, color = "k")
+        ax.scatter(nLat,nLon,hmax, label = str(i + 1))
         ax.plot([nLat,nLat],[nLon,nLon],[0,hmax],color = "b")
 
         i = i + 1
