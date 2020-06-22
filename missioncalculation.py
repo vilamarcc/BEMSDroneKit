@@ -188,3 +188,14 @@ def writeMultiElipse(sep,bufferD,perimeters,filename):
     file.write(str(i + 3) + " 0 10 20 0 0 0 0 " + str(xf[-1]) + " " + str(yf[-1]) + " " + str(round(zf[0],2)) + " " + "1\n")
     file.write(str(i + 4) + " 0 10 21 0 0 0 0 0 0 0 1\n")
     file.close()
+
+def writeForKML(x,y,z,filename):
+    filename = filename + ".txt"
+    file = open(str(filename), "w")
+    file.write("QGC WPL 110\n")
+    file.write("1 0 3 22 0 0 0 0 0 0 " + str(round(z[0],2)) + " " + "1\n")
+    j = 0
+    while (j < len(x)):
+        file.write(str(j + 2) +  " 0 3 16 0 0 0 0 " + str(x[j]) + " " + str(y[j]) + " " + str(round(z[j],2)) + " " + "1\n")
+        j = j + 1
+    file.close()
