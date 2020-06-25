@@ -8,6 +8,7 @@ class perimeter:
         self.c2 = cc2
         self.c3 = cc3
         self.c4 = cc4
+        self.ccn = [cc1,cc2,cc3,cc4]
         self.hmax = hma
         self.hmin = hmi
         self.C = self.getCenter()
@@ -18,6 +19,16 @@ class perimeter:
         return C
     def __lt__(self, other):
         return self.hmax < other.hmax
+    def getPOIs(self):
+        POIs = np.linspace(0,0,len(self.ccn))
+        i = 0
+        while i < len(self.ccn):
+            try:
+                POIs[i] = getBearingBetweenCoordinates(self.ccn[i][0],self.ccn[i][1],self.ccn[i+1][0],self.ccn[i+1][1])
+            except:
+                POIs[i] = getBearingBetweenCoordinates(self.ccn[i][0],self.ccn[i][1],self.ccn[0][0],self.ccn[0][1])
+            i = i + 1
+        return POIs
 
 class wall:
     def __init__ (self, cc1, cc2, hma, hmi): # ccn = corners of perimeter [lat,lon]
@@ -50,6 +61,17 @@ class polygon:
         return C
     def __lt__(self, other):
         return self.hmax < other.hmax
+    
+    def getPOIs(self):
+        POIs = np.linspace(0,0,len(self.ccn))
+        i = 0
+        while i < len(self.ccn):
+            try:
+                POIs[i] = getBearingBetweenCoordinates(self.ccn[i][0],self.ccn[i][1],self.ccn[i+1][0],self.ccn[i+1][1])
+            except:
+                POIs[i] = getBearingBetweenCoordinates(self.ccn[i][0],self.ccn[i][1],self.ccn[0][0],self.ccn[0][1])
+            i = i + 1
+        return POIs
 
 def getHelix(sep, bufferD, perimeter): 
 
@@ -505,15 +527,30 @@ def getPolySquare(sep,bufferD,poly):
         brngpre = getBearingBetweenCoordinates(ccpre[0],ccpre[1],cc0[0],cc0[1])
         brngpost = getBearingBetweenCoordinates(ccpost[0],ccpost[1],cc0[0],cc0[1])
         brngav = (brngpre + brngpost)/2
+        fix1,fix2 = 1,1
+        bfix = brngpost + np.pi
+        if(bfix < 0):
+            bfix = bfix + np.pi*2
+        if((bfix > np.pi/4 and bfix < np.pi*0.75) or (bfix - np.pi > np.pi/4 and bfix - np.pi < np.pi*0.75 )):
+            fix1 = 2
+        else:
+            fix2 = 2
 
-        [pLatn,pLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD, brngav)
-        P = [pLatn,pLonn]
-        inside = checkIfInsidePoly(P,poly)
-        if(inside == True):
-            [pLatn,pLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD, brngav + np.pi)
+        [pLatn,pLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD*fix2, brngpre)
+        [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD*fix1, brngpost)
 
-        Lats.append(pLatn)
-        Lons.append(pLonn)
+        w1 = wall(ccpre,cc0,0,0)
+        w2 = wall(cc0,ccpost,0,0)
+
+        if(convex(w1,w2) == True):
+            [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD*2, brngav + np.pi)
+            Lats.append(cLatn)
+            Lons.append(cLonn)
+        else:
+            Lats.append(cLatn)
+            Lons.append(cLonn)
+            Lats.append(pLatn)
+            Lons.append(pLonn)
 
         i = i + 1
     
@@ -536,6 +573,34 @@ def getPolySquare(sep,bufferD,poly):
         j = j + cornercount
     
     return x,y,z
+
+def getMultiPolySquare(sep,bufferD,polys):
+    polys.sort()
+    xT = []
+    yT = []
+    zT = []
+    i = 0
+    if(len(polys) > 1):
+        hTrans = (-polys[0].hmax + polys[1].hmin)
+    else:
+        hTrans = 0
+    while i < len(polys):
+        xp,yp,zp = getPolySquare(sep,bufferD,polys[i])
+        xp = xp[::-1]
+        yp = yp[::-1]
+        zp = zp[::-1]
+        xT.extend(xp)
+        yT.extend(yp)
+        zT.extend(zp)
+        if i < len(polys) - 1:
+            xT.append(xp[-1])
+            yT.append(yp[-1])
+            zT.append(zT[-1] + hTrans)
+            hTrans = polys[i + 1].hmin - polys[i].hmax
+        
+        i = i + 1
+
+    return xT,yT,zT    
 
 def checkIfInsidePoly(P,poly):
     lat = P[0]
