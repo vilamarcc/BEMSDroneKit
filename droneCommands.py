@@ -182,16 +182,20 @@ def MissionStart(vehicle,hmax):
     print("Disarmed")
 
 def securityThreading(vehicle,D,margen):
+    rangefinder = True
     while 1:
         if(vehicle.rangefinder != None):
+            rangefinder = False
             if(vehicle.rangefinder <= D + D*margen):
                 [final_Lat,final_Lon] = getLocationAtBearing(vehicle.location.global_relative_frame.lat,vehicle.location.global_relative_frame.lon,D*margen,vehicle.attitude.yaw - 180)
                 location = LocationGlobal(final_Lat, final_Lon, vehicle.location.global_relative_frame.alt)
-                ChangeMode(vehilce,"GUIDED")
+                ChangeMode(vehicle,"GUIDED")
                 print("Safety distance triggered, launching safe separation")
-			    vehicle.simple_goto(location)
+			    #vehicle.simple_goto(location)
             else:
                 if(vehicle.mode == "GUIDED"):
-                    ChangeMode("AUTO")
+                    ChangeMode(vehicle,"AUTO")
                     print("Resuming Mission")
-                
+        if(rangefinder == True):
+            print("ERROR: Range Finder not found on drone")
+            rangefinder = False
