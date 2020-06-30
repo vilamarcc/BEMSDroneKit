@@ -510,6 +510,7 @@ def getPolySquare(sep,bufferD,poly):
     Lats = []
     Lons = []
     z = []
+    convexcorners = 0
     hmax = poly.hmax
     hmin = poly.hmin
     n = round((hmax-hmin)/sep) + 1
@@ -542,11 +543,32 @@ def getPolySquare(sep,bufferD,poly):
         w1 = wall(ccpre,cc0,0,0)
         w2 = wall(cc0,ccpost,0,0)
 
+        Opre = brngpre
+        Opost = brngpost - np.pi
+        if(Opre < 0):
+            Opre+=2*np.pi
+        if(Opost < 0):
+            Opost+=2*np.pi
+        ab = abs(Opre-Opost)*(180/np.pi)
+        if(ab > 180):
+            ab = 360 - ab
+
+        if(ab < 75 or ab > 105):
+            if(convex(w1,w2) == False):
+                [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD*fix2, brngav + np.pi)
+                if(checkIfInsidePoly([cLatn,cLonn],poly) == True):
+                    [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD*fix2, brngav)
+                Lats.append(cLatn)
+                Lons.append(cLonn)
+                convexcorners = convexcorners + 1
         if(convex(w1,w2) == True):
-            [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD*2, brngav + np.pi)
+            [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD*fix2, brngav + np.pi)
+            if(checkIfInsidePoly([cLatn,cLonn],poly) == True):
+                [cLatn,cLonn] = getLocationAtBearing(cc0[0],cc0[1],bufferD*fix2, brngav)
             Lats.append(cLatn)
             Lons.append(cLonn)
-        else:
+            convexcorners = convexcorners + 1
+        if(ab > 75 and ab < 105 and convex(w1,w2) == False):
             Lats.append(cLatn)
             Lons.append(cLonn)
             Lats.append(pLatn)
@@ -563,7 +585,7 @@ def getPolySquare(sep,bufferD,poly):
 
     j = 0
     h = 0
-    cornercount = len(poly.ccn) + 1
+    cornercount = 2*(len(poly.ccn) - convexcorners) + 1 + convexcorners
     while (j < len(z)):
         if(hmax - sep*h >= hmin):
             z[j:cornercount*(h + 1)] = hmax - sep*h
@@ -642,3 +664,14 @@ def convex(w1,w2):
         return True
     else:
         return False
+
+def getDifference2(b2,b1):
+    angleC = min(b2,b1)
+    b2 -= angleC
+    b1 -= angleC
+
+    if(b1 == 0):
+        return b2
+    if(b2 == 0):
+        return b1
+

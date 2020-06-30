@@ -1,7 +1,6 @@
-from dronekit import *
-import math
-from routes import getMultiHelix, getMultiFacade, getHelix, getFacade, getHelixinCoords,getSquare,getElipse,getMultiElipse,getMultiSquare
+from routes import *
 import numpy as np
+from haversine import *
 
 
 def writeSimpleHelixMission(sep, bufferD, perimeter, filename):
@@ -237,28 +236,26 @@ def writeFacade(x,y,z,cW,walls,filename):
 
 def writeSquarePoly(x,y,z,cW,poly,filename):
     filename = filename + ".txt"
+    x = x[::-1]
+    y = y[::-1]
+    z = z[::-1]
     file = open(str(filename), "w")
     file.write("QGC WPL 110\n")
     file.write("0 1 0 22 0 0 0 0 0 0 " + str(round(z[0],2)) + " " + "1\n")
     file.write("1 0 10 16 0 0 0 0 " + str(x[0]) + " " + str(y[0]) + " " + str(round(z[0],2)) + " " + "1\n")
     POIs = poly[0].getPOIs()
-    l = 0
-    while(l < len(POIs)):
-        POIs[l] = round((POIs[l] - (np.pi/2)*cW)*(180/np.pi),3)
-        if(POIs[l] < 0):
-            POIs[l] = POIs[l] + 360
-        l = l + 1
     i = 0
     j = 0
-    poi = 0
+    poi = getBearingBetweenCoordinates(x[0],y[0],poly[0].ccn[0][0],poly[0].ccn[0][1])
     while(i < len(x)):
+        try:
+            poi = (getBearingBetweenCoordinates(x[i],y[i],x[i + 1], y[i + 1]) - cW*(np.pi/2))*(180/np.pi)
+        except:
+            poi = (getBearingBetweenCoordinates(x[i],y[i],x[0],y[0]) - cW*(np.pi/2))*(180/np.pi)
         file.write(str(j + 2) + " 0 10 16 0 0 0 0 " + str(x[i]) + " " + str(y[i]) + " " + str(round(z[i],2)) + " " + "1\n")
-        file.write(str(j + 3) + " 0 0 115 " + str(90) + " 0 " + str(1) + " 0 0 0 0 1\n")
+        file.write(str(j + 3) + " 0 0 115 " + str(poi) + " 0 " + str(1) + " 0 0 0 0 1\n")
         i = i + 1
         j = j + 2
-        poi = poi + 1
-        if(poi >= len(poly[0].ccn)):
-            poi = 0
     
     file.write(str(len(x) + 2) + " 0 10 16 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
     file.write(str(len(x) + 3) + " 0 10 20 0 0 0 0 " + str(x[-1]) + " " + str(y[-1]) + " " + str(round(z[0],2)) + " " + "1\n")
@@ -273,13 +270,14 @@ def writeHelix(x,y,z,ps,filename):
     yf = y[::-1]
     zf = z[::-1]
     ps.sort()
-    perimeter = ps[0]
+    ps = ps[::-1]
     file.write("0 1 0 22 0 0 0 0 0 0 " + str(round(zf[0],2)) + " " + "1\n")
     file.write("1 0 10 22 0 0 0 0 0 0 " + str(round(zf[0],2)) + " " + "1\n")
-    file.write("2 0 10 201 0 0 0 0 " + str(perimeter.C[0]) + " " + str(perimeter.C[1]) + " " + str(perimeter.hmax) + " 1\n")
+    file.write("2 0 10 201 0 0 0 0 " + str(ps[0].C[0]) + " " + str(ps[0].C[1]) + " " + str(ps[0].hmax) + " 1\n")
     i = 0
     j = 0
     h = 1
+    perimeter = ps[0]
     while (j < len(xf)):
         file.write(str(i + 3) +  " 0 10 82 0 0 0 0 " + str(xf[j]) + " " + str(yf[j]) + " " + str(round(zf[j],2)) + " " + "1\n")
         file.write(str(i + 4) +  " 0 10 201 0 0 0 0 " + str(perimeter.C[0]) + " " + str(perimeter.C[1]) + " " + str(round(zf[j],2)) + " " + "1\n")
