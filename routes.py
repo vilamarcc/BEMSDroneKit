@@ -87,7 +87,7 @@ def getHelix(sep, bufferD, perimeter):
     b = min(wall2,wall1) / 2
     n = ((hmax - hmin) / sep)
     c = (hmax - hmin) / (2 * np.pi * n)
-    theta = np.linspace(0, np.pi * n * 2 , 150)
+    theta = np.linspace(0, np.pi * n * 2 , 100)
     z = (c * theta) + hmin #altitude in m 
     alpha = np.arctan2(b,a)
     rr = (a*b) / np.sqrt((a**2)*(np.sin(alpha)**2) + (b**2)*(np.cos(alpha)**2))

@@ -148,7 +148,7 @@ def plotPreviewSimpleFacade(x,y,z,wall,n,home):
     set_axes_equal(ax,hmax)
     plt.show()
 
-def plotPreviewMultiFacade(x,y,z,walls,n,home):
+def plotPreviewMultiFacade(x,y,z,walls,n):
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
     #mpl.rcParams['legend.fontsize'] = 10
@@ -179,8 +179,6 @@ def plotPreviewMultiFacade(x,y,z,walls,n,home):
     
     ax.plot(basex,basey,hmax, color = "r", label = "Hmax")
     ax.plot(basex,basey,hmin, color = "g", label = "Hmin")
-
-    ax.scatter(home.lat,home.lon,color = "r", label = "Home")
     i = 0
     while i < len(walls):
         cc = walls[i].c1
@@ -194,23 +192,8 @@ def plotPreviewMultiFacade(x,y,z,walls,n,home):
     liney = [walls[i-1].c2[1],walls[i-1].c2[1]]
     linez = [0, hmax]
     ax.plot(linex,liney,linez, color = "b")
-    xT.insert(0,home.lat)
-    yT.insert(0,home.lon)
-    zT.insert(0,hmax)
-    xT.insert(0,home.lat)
-    yT.insert(0,home.lon)
-    zT.insert(0,0)
-    xT.append(x[-1])
-    yT.append(y[-1])
-    zT.append(hmax)
-    xT.append(home.lat)
-    yT.append(home.lon)
-    zT.append(hmax)
-    xT.append(home.lat)
-    yT.append(home.lon)
-    zT.append(0)
     ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
-    ax.plot(xT, yT, zT)
+    ax.plot(xT, yT, zT,color = "#ffb458", label = "Route")
     ax.legend()
     set_axes_equal(ax,hmax)
     plt.show()
@@ -281,7 +264,7 @@ def quiver_data_to_segments(X, Y, Z, u, v, w, length=0.00005):
     segments = np.array(segments).reshape(6,-1)
     return [[[x, y, z], [u, v, w]] for x, y, z, u, v, w in zip(*list(segments))]
 
-def plotPreviewMultiPerimeter(x,y,z,perimeters,n,home):
+def plotPreviewMultiPerimeter(x,y,z,perimeters,n):
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
     i = 0
@@ -330,29 +313,48 @@ def plotPreviewMultiPerimeter(x,y,z,perimeters,n,home):
     set_axes_equal(ax,hmax)
     plt.show()
 
-def plotPreviewPolygon(x,y,z,poly,n,home):
-
+def plotPreviewMutlyPolygon(x,y,z,polys,n):
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
-    i = 0
-    hmax = poly.hmax
-    hmin = poly.hmin
-    basex = []
-    basey = []
-    while (i < len(poly.ccn)):
-        [nLat,nLon] = poly.ccn[i]
-        basex.append(nLat)
-        basey.append(nLon)
-        ax.scatter(nLat,nLon,hmax, color = "k")
-        ax.plot([nLat,nLat],[nLon,nLon],[0,hmax],color = "b")
+    j = 0
+    polys.sort()
+    while(j < len(polys)):
+        poly = polys[j]
+        i = 0
+        ht = 0
+        if(i >= 1):
+            ht = polys[i - 1].hmax
+        else:
+            ht = 0
+        hmax = poly.hmax
+        hmin = poly.hmin
+        basex = []
+        basey = []
+        while (i < len(poly.ccn)):
+            [nLat,nLon] = poly.ccn[i]
+            basex.append(nLat)
+            basey.append(nLon)
+            ax.scatter(nLat,nLon,hmax, color = "k")
+            ax.plot([nLat,nLat],[nLon,nLon],[ht,hmax],color = "b")
 
-        i = i + 1
-    
-    basex.append(basex[0])
-    basey.append(basey[0])
-    ax.plot(basex,basey,0,color = "b")
-    ax.plot(basex,basey,hmax,color = "r",label = "Hmax")
-    ax.plot(basex,basey,hmin,color = "g",label = "Hmin")
+            i = i + 1
+        
+        basex.append(basex[0])
+        basey.append(basey[0])
+        ax.plot(basex,basey,ht,color = "b")
+        ax.plot(basex,basey,hmax,color = "r",label = "Hmax")
+        ax.plot(basex,basey,hmin,color = "g",label = "Hmin")
+        j = j + 1
+
+    ax.plot(x,y,z,color = "#ffb458", label = "Route")
+    ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
+    ax.legend()
+    set_axes_equal(ax,hmax)
+    plt.show()
+
+def plotRouteSimple(x,y,z,hmax):
+    fig = plt.figure(1)
+    ax = fig.gca(projection='3d')
     ax.plot(x,y,z,color = "#ffb458", label = "Route")
     ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
     ax.legend()
