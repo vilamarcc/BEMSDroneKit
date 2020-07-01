@@ -148,7 +148,7 @@ def plotPreviewSimpleFacade(x,y,z,wall,n,home):
     set_axes_equal(ax,hmax)
     plt.show()
 
-def plotPreviewMultiFacade(x,y,z,walls,n):
+def plotPreviewMultiFacade(x,y,z,walls,n,live = False):
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
     #mpl.rcParams['legend.fontsize'] = 10
@@ -196,7 +196,10 @@ def plotPreviewMultiFacade(x,y,z,walls,n):
     ax.plot(xT, yT, zT,color = "#ffb458", label = "Route")
     ax.legend()
     set_axes_equal(ax,hmax)
-    plt.show()
+    if(live == False):
+        plt.show()
+    else:
+        return fig
 
 def plotLiveSimpleFacade(vehicle,wall,n):
     plt.ion()
@@ -264,7 +267,7 @@ def quiver_data_to_segments(X, Y, Z, u, v, w, length=0.00005):
     segments = np.array(segments).reshape(6,-1)
     return [[[x, y, z], [u, v, w]] for x, y, z, u, v, w in zip(*list(segments))]
 
-def plotPreviewMultiPerimeter(x,y,z,perimeters,n):
+def plotPreviewMultiPerimeter(x,y,z,perimeters,n, live = False):
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
     i = 0
@@ -311,9 +314,12 @@ def plotPreviewMultiPerimeter(x,y,z,perimeters,n):
     ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
     ax.legend()
     set_axes_equal(ax,hmax)
-    plt.show()
+    if(live == False):
+        plt.show()
+    else:
+        return fig
 
-def plotPreviewMutlyPolygon(x,y,z,polys,n):
+def plotPreviewMutlyPolygon(x,y,z,polys,n, live = False):
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
     j = 0
@@ -350,7 +356,10 @@ def plotPreviewMutlyPolygon(x,y,z,polys,n):
     ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
     ax.legend()
     set_axes_equal(ax,hmax)
-    plt.show()
+    if(live == False):
+        plt.show()
+    else:
+        return fig
 
 def plotRouteSimple(x,y,z,hmax):
     fig = plt.figure(1)
