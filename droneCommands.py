@@ -20,7 +20,7 @@ def connectDrone():
 
 def connectSITL():
     print('Connecting.............................')
-    connection_string = 'tcp:127.0.0.1:5672'
+    connection_string = 'tcp:127.0.0.1:5762'
     baud_rate = 921600
     vehicle = connect(connection_string, baud=baud_rate,wait_ready=True)
     print('Connection to the vehicle on %s'%connection_string)
