@@ -1,6 +1,7 @@
 from missioncalculation import *
 from droneCommands import *
 from dronekit import *
+from dronekit_sitl import *
 from routes import *
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -14,12 +15,14 @@ from matplotlib.animation import FuncAnimation
 
 #### General Parameters #######
 sep = 2
+sep_J = 1
 D = 4
-D_C3 = 2
+D_C3 = 6
+D_J = 2
 ori = 1
 cW = 1
-filename = "demoMission"
-filenameKML = "demoKML_Elipse"
+filename = "demoTest4"
+filenameKML = "demoKML_Test4"
 
 ############# BUILDING LIBRARY EETAC CBL #############################
 
@@ -53,9 +56,9 @@ c21 = [41.2754017,1.9861972]
 c22 = [41.2750297,1.9863568]
 c23 = [41.275192,1.9870274]
 c24 = [41.2755609,1.9868731]
-p2_C3 = perimeter(c21,c22,c23,c24,15,12)
+p2_C3 = perimeter(c21,c22,c23,c24,15,9)
 cn2_C3 = [c21,c22,c23,c24]
-poly2_C3 = polygon(cn2_C3,15,12)
+poly2_C3 = polygon(cn2_C3,15,9)
 
 #Tercer piso
 
@@ -72,7 +75,7 @@ ps_C3 = [p1_C3,p2_C3,p3_C3]
 polys_C3 =[poly1_C3,poly2_C3,poly3_C3]
 
 #################### Colegio ########################
-hmax_HS = 10
+hmax_HS = 8
 hmin_HS = 2
 cc1 = [41.2785442,1.9814122]
 cc2 = [41.2784152,1.9814926]
@@ -94,6 +97,19 @@ wall8 = wall(cc8,cc1,hmax_HS,hmin_HS)
 wallsHS = [wall1,wall2,wall3,wall4,wall5,wall6,wall7,wall8]
 polyHS = polygon(cn,hmax_HS,hmin_HS)
 
+######### JAULA C3 ##############
+hmax_J = 7
+hmin_J = 2
+cj1 = [41.2751567,1.9867417]
+cj2 = [41.2753724,1.9866492]
+cj3 = [41.2754107,1.9867913]
+cj4 = [41.2751668,1.9868906]
+wall1 = wall(cj1,cj2,hmax_J,hmin_J)
+wall2 = wall(cj2,cj3,hmax_J,hmin_J)
+wall3 = wall(cj3,cj4,hmax_J,hmin_J)
+walls_J = [wall1,wall2,wall3]
+
+
 x = []
 y = []
 z = []
@@ -102,9 +118,7 @@ sqF = 0
 hF = 0
 eF = 0
 
-
-print("DEMO FOR TFG MARC VILA VERTICAL EVALUATION BUIDLINGS ALGORITHM                                   c UPC EETAC 2020")
-print("Description")
+print("DEMO FOR TFG MARC VILA VERTICAL EVALUATION BUIDLINGS ALGORITHM                                   (c) UPC EETAC 2020")
 print("")
 print("Please select type of route to demo:")
 print("\t 1. - Facade")
@@ -118,6 +132,7 @@ if(route_answer == "1"):
     print("Facade Route Selected, please select pre-established test building: ")
     print("\t 1. - Library BCBL")
     print("\t 2. - Josep Lluis Sert High School")
+    print("\t 3. - Cage C3")
     building_answer = str(input())
     if(building_answer == "1"):
         print("Library Selected:")
@@ -149,7 +164,6 @@ if(route_answer == "1"):
             print("\t Corner 4: " + str(c1) + "\n")
             wallsF = wallsCBL
            
-
     if(building_answer == "2"):
         print("Josep Lluis Sert High School selected")
         print("The following parameters will be used:")
@@ -172,7 +186,27 @@ if(route_answer == "1"):
         print("\t Corner 7: " + str(cc7))
         print("\t Corner 8: " + str(cc8) + "\n")
         wallsF = wallsHS
-    
+
+    if(building_answer == "3"):
+        sep = sep_J
+        D = D_J
+        print("The following parameters will be used:")
+        print("\n")
+        print("PARAMETERS: \n")
+        print("\t Separation: " + str(sep))
+        print("\t Minumum Height: " + str(hmin_J) + " m")
+        print("\t Maximum Height: " + str(hmax_J) + " m")
+        print("\t Security Distance: " + str(D) + " m")
+        print("\t Orientation: " + str(-1))
+        print("\t Filename: " + str(filename) + ".txt")
+        print("-------------------------------------------------------------------------")
+        print("COORDINATES OF DEFAULT WALLS Cage: [Latitude, Longitude] \n")
+        print("\t Corner 1: " + str(cj2))
+        print("\t Corner 2: " + str(cj3))
+        print("\t Corner 3: " + str(cj4))
+        print("\t Corner 4: " + str(cj1) + "\n")
+        wallsF = walls_J
+
     x,y,z = getMultiFacade(sep,D,wallsF,ori)
     writeFacade(x,y,z,cW,wallsF,filename)
 
@@ -204,6 +238,7 @@ if(route_answer == "2"):
         sqF = [polygonCBL]
 
     if(building_answer == "2"):
+        D = D_C3
         print("The following parameters will be used:")
         print("\n")
         i = 0
@@ -284,6 +319,7 @@ if(route_answer == "3"):
 
 
     if(building_answer == "2"):
+        D = D_C3
         print("The following parameters will be used:")
         print("\n")
         i = 0
@@ -309,7 +345,6 @@ if(route_answer == "3"):
         print("\t Security Distance: " + str(D) + " m")
         print("\t Filename: " + str(filename) + ".txt")
         hf = ps_C3
-        D = D_C3
 
     x,y,z,theta = getMultiHelix(sep,D,hf)
     x,y,z = getHelixinCoords(x,y,z,hf[0].getCenter())
@@ -340,6 +375,7 @@ if(route_answer == "4"):
         ef = [p_CBL]
 
     if(building_answer == "2"):
+        D = D_C3
         print("The following parameters will be used:")
         print("\n")
         i = 0
@@ -365,10 +401,59 @@ if(route_answer == "4"):
         print("\t Security Distance: " + str(D) + " m")
         print("\t Filename: " + str(filename) + ".txt")
         ef = ps_C3
-        D = D_C3
     
     x,y,z = getMultiElipse(sep,D,ef)
     x,y,z = getHelixinCoords(x,y,z, ef[0].getCenter())
     writeElipse(x,y,z,sep,ef,filename)
 
+fig = None
 writeForKML(x,y,z,filenameKML)
+print("Do you wish to see a preview of the route?")
+print("[Y/N]")
+if(str(input()) == "y" or str(input()) == "Y"):
+    if(route_answer == "1"):
+        plotPreviewMultiFacade(x,y,z,wallsF,1)
+        fig = plotPreviewMultiFacade(0,0,0,wallsF,2,live =True)
+    if(route_answer == "2"):
+        plotPreviewMutlyPolygon(x,y,z,sqF,1)
+        fig = plotPreviewMutlyPolygon(0,0,0,sqF,2,live = True)
+    if(route_answer == "3" or route_answer == "4"):
+        try:
+            plotPreviewMultiPerimeter(x,y,z,eF,1)
+            fig = plotPreviewMultiPerimeter(0,0,0,eF,2,live = True)
+        except:
+            plotPreviewMultiPerimeter(x,y,z,hF,1)
+            fig = plotPreviewMultiPerimeter(0,0,0,hF,2,live = True)
+
+## ONLY SITL MISSIONS ON THIS DEMO ##
+vehicle = None
+print("Select SITL Simulation")
+print("\t 1. - External SITL")
+print("\t 2. - Execute SITL from this script")
+sitl = input()
+if(str(sitl) == "1"):
+    vehicle = connectSITL()
+
+elif(str(sitl) == "2"):
+    sitl = SITL()
+    #sitl.download('copter','3.3', verbose = True)
+    args = ['-S','--model','quad','--home=41.2754077,1.9845396,6,90']
+    sitl.launch(args,await_ready=False,restart=False,verbose = False)
+    cs = sitl.connection_string()
+    sitl.block_until_ready()
+    vehicle = connect(cs,wait_ready=True,baud = 921600)
+
+printStatus(vehicle)
+clear_mission(vehicle)
+upload_mission(filename + ".txt",vehicle)
+n_WP, missionList = get_current_mission(vehicle)
+vehicle.mode = VehicleMode("STABILIZE")
+printStatus(vehicle)
+print("Mission ready to start.")
+print("\t 1 - Arm and Start Mission")
+se = input()
+if(se == str(1)):
+    #p = threading.Thread(target=updatePlotLive(fig,vehicle) , name = "PLOT")
+    m = threading.Thread(target=MissionStart(vehicle,max(z)) , name = "MISSION")
+    m.start()
+    #p.start()
