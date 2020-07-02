@@ -4,7 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from routes import perimeter,wall
+from routes import perimeter,wall,polygon
 from matplotlib.animation import FuncAnimation
 from dronekit import * 
 
@@ -149,6 +149,8 @@ def plotPreviewSimpleFacade(x,y,z,wall,n,home):
     plt.show()
 
 def plotPreviewMultiFacade(x,y,z,walls,n,live = False):
+    if(live == True):
+        plt.ion()
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
     #mpl.rcParams['legend.fontsize'] = 10
@@ -193,10 +195,10 @@ def plotPreviewMultiFacade(x,y,z,walls,n,live = False):
     linez = [0, hmax]
     ax.plot(linex,liney,linez, color = "b")
     ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
-    ax.plot(xT, yT, zT,color = "#ffb458", label = "Route")
     ax.legend()
     set_axes_equal(ax,hmax)
     if(live == False):
+        ax.plot(xT, yT, zT,color = "#ffb458", label = "Route")
         plt.show()
     else:
         return fig
@@ -233,7 +235,7 @@ def plotLiveSimpleFacade(vehicle,wall,n):
     set_axes_equal(ax,hmax)
     return fig
 
-def updatePlotSimpleFacade(fig,vehicle):
+def updatePlotLive(fig,vehicle):
     ax = fig.gca(projection='3d')
     droneScatter = ax.scatter(vehicle.location.global_relative_frame.lat,vehicle.location.global_relative_frame.lon,vehicle.location.global_relative_frame.alt, label = "Vehicle", color = "g")
     u = np.cos(vehicle.attitude.yaw)
@@ -268,6 +270,8 @@ def quiver_data_to_segments(X, Y, Z, u, v, w, length=0.00005):
     return [[[x, y, z], [u, v, w]] for x, y, z, u, v, w in zip(*list(segments))]
 
 def plotPreviewMultiPerimeter(x,y,z,perimeters,n, live = False):
+    if(live == True):
+        plt.ion()
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
     i = 0
@@ -310,16 +314,18 @@ def plotPreviewMultiPerimeter(x,y,z,perimeters,n, live = False):
         ax.plot(basex,basey,htrans, color = "b")
 
         i = i + 1
-    ax.plot(x,y,z,color = "#ffb458", label = "Route")
     ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
     ax.legend()
     set_axes_equal(ax,hmax)
     if(live == False):
+        ax.plot(x,y,z,color = "#ffb458", label = "Route")
         plt.show()
     else:
         return fig
 
 def plotPreviewMutlyPolygon(x,y,z,polys,n, live = False):
+    if(live == True):
+        plt.ion()
     fig = plt.figure(n)
     ax = fig.gca(projection='3d')
     j = 0
@@ -352,11 +358,11 @@ def plotPreviewMutlyPolygon(x,y,z,polys,n, live = False):
         ax.plot(basex,basey,hmin,color = "g",label = "Hmin")
         j = j + 1
 
-    ax.plot(x,y,z,color = "#ffb458", label = "Route")
     ax.set(xlabel = "Latitude", ylabel = "Longitude", zlabel = "Height")
     ax.legend()
     set_axes_equal(ax,hmax)
     if(live == False):
+        ax.plot(x,y,z,color = "#ffb458", label = "Route")
         plt.show()
     else:
         return fig
