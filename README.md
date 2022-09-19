@@ -43,12 +43,12 @@ B[Building Data] --> E
 Various examples developed using BEMS library, visualized with *Google Earth* and *Mission Planner*:
 
 Facade Mission
-![](https://im.ge/i/1sYELz)
+![](https://i.ibb.co/MRfdS7Y/123123.jpg)
 
 Multi Square Mission
-![](https://im.ge/i/1sY34F)
+![](https://i.ibb.co/SnFmPtS/Capture.jpg)
 
-Multi Circle Mission
-![](https://im.ge/i/1sYgzX)
+Circle Mission
+![](https://i.ibb.co/xDrBRfJ/q123.jpg)
 
 © UPC Universitat Politècnica de Catalunya · BarcelonaTech, 2020 ™
