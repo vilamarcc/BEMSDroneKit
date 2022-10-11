@@ -2,9 +2,9 @@
 
 # Mission generator for building evaluation with UAS
 
-This project belong to the final degree project developed by Marc Vila during his Bsc. Aerospace Engineering at UPC, which involved designing and development of a library to generate and send UAS flight paths using the *dronekit* library to be used as a tool for building evaluations.
+This project belongs to the final degree project developed by Marc Vila during his Bsc. Aerospace Engineering at UPC, which involved designing and development of a library to generate and send UAS flight paths using the *dronekit* library to be used as a tool for building evaluations.
 
-The project uses a combination of classic geometry and calculus techniques to generate cartesian data points [x,y,z] of the route arround a fictional building using the input data of the building size and geometry, then using a set of *Haversine* equations the cartesian point are transtaled into coordinates [Latitude, Longitude, Altitude] to be writen as *ArduPilot flight plan format. Then as a final step, using the *dronekit library it is sent via *Mavlink to the execution of the mission and data collection.
+The project uses a combination of classic geometry and calculus techniques to generate cartesian data points [x,y,z] of the route arround a fictional building using the input data of its size and geometry, then using a set of *Haversine* equations the cartesian point are transtaled into coordinates [Latitude, Longitude, Altitude] to be writen as *ArduPilot* flight plan format. Then as a final step, using the *dronekit* library it is sent via *Mavlink* to be executed as a mission plan to collect data from the building to be evaluated.
 
 BEMS library (Building Evaluation Mission Systems) can be used to generate different missions depending on the buidling shape/geometry or type of mission desired :
 - Square.
@@ -40,7 +40,7 @@ B[Building Data] --> E
 ```
 ## Examples
 
-Various examples developed using BEMS library, visualized with *Google Earth* and *Mission Planner*:
+Various examples developed using BEMS library, visualized with *Google Earth*:
 
 ![](https://i.ibb.co/MRfdS7Y/123123.jpg)
 
